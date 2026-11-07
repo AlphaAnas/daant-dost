@@ -5,6 +5,7 @@ import ExplorePage from "../features/explore/ExplorePage";
 import AssessHub from "../features/assess/AssessHub";
 import AssessmentPage from "../features/assess/AssessmentPage";
 import LearnPage from "../features/learn/LearnPage";
+import QuizPage from "../features/learn/QuizPage";
 import ExplainPage from "../features/explain/ExplainPage";
 import NotFound from "./NotFound";
 
@@ -18,6 +19,7 @@ export const routes = [
       { path: "assess", element: <AssessHub /> },
       { path: "assess/:id", element: <AssessmentPage /> },
       { path: "learn", element: <LearnPage /> },
+      { path: "learn/:mode", element: <QuizPage /> },
       { path: "explain", element: <ExplainPage /> },
       { path: "*", element: <NotFound /> },
     ],
