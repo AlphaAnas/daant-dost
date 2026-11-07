@@ -1,11 +1,13 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import DentalViewer from "../../components/dental/three/DentalViewer";
 import TutorPanel from "./TutorPanel";
+import AgeTimeline from "./AgeTimeline";
 import Odontogram from "../../components/dental/Odontogram";
 import ToothPanel from "../../components/dental/ToothPanel";
 import ToothPicker from "../../components/dental/ToothPicker";
 import { useToothSelection } from "../../components/dental/toothSelection";
-import { SceneProvider } from "../../scene/sceneStore";
+import { SceneProvider, createSceneStore } from "../../scene/sceneStore";
 import { SITE_STUDY_NOTES, SITE_TITLES, dentalRegionById, dentalRegionGroup } from "../../data/dental";
 import { toothById } from "../../data/teeth";
 
@@ -55,6 +57,16 @@ const Narration = ({ text }) =>
 const ExplorePage = () => {
   const site = useToothSelection();
   const [narration, setNarration] = useState(null);
+  // ?age=7 opens the mouth at that age, and ?layer=xray in that layer, for links and demos.
+  const [params] = useSearchParams();
+  const [store] = useState(() => {
+    const age = Number(params.get("age"));
+    const layer = params.get("layer");
+    return createSceneStore({
+      ...(params.has("age") && Number.isFinite(age) ? { age: Math.min(25, Math.max(0, age)) } : {}),
+      ...(["gums", "bone", "roots", "teeth", "xray"].includes(layer) ? { layer } : {}),
+    });
+  });
   const group = site.primary && site.primary !== "multiple" ? dentalRegionGroup(site.primary, site.teeth) : null;
   const summary =
     site.teeth.length === 1
@@ -64,7 +76,7 @@ const ExplorePage = () => {
         : dentalRegionById(site.primary)?.label;
 
   return (
-    <SceneProvider>
+    <SceneProvider store={store}>
       <div className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:py-8">
         <div className="lg:sticky lg:top-20 lg:self-start">
           <DentalViewer
@@ -79,6 +91,7 @@ const ExplorePage = () => {
             fallback={<p className="rounded-2xl border border-dashed border-ink-faint p-5 text-ink-soft">The 3D mouth needs WebGL. Use the tooth chart instead.</p>}
           >
             <Narration text={narration} />
+            <AgeTimeline />
           </DentalViewer>
         </div>
         <div className="flex flex-col gap-4">

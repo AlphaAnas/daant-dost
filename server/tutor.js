@@ -19,6 +19,7 @@ Commands you can use (only these; teeth are FDI ids "11"-"48" for adult teeth):
 - {"type":"setArches","arches":"both|upper|lower"}
 - {"type":"setJaw","open":0.0-1.0}
 - {"type":"section","tooth":"36"} open a cross-section of one tooth (enamel, dentine, pulp)
+- {"type":"setAge","years":7} show the mouth at an age from 0 to 25 (baby teeth, eruption); {"type":"setAge","years":null} for adult
 - {"type":"focusRegion","region":"palate|tongue|tmj_left|tmj_right|maxilla|mandible|lips|floor_of_mouth|gingiva_upper|gingiva_lower"}
 Start the first step with clearHighlights. If the question is not about dentistry or oral anatomy, say so kindly in one step with no commands.
 This is education only: never diagnose a real person; suggest they see a dentist for personal symptoms.`;
@@ -103,6 +104,18 @@ const CANNED = [
     },
   },
   {
+    keys: ["baby teeth", "primary", "erupt", "mixed dentition", "age", "child", "milk teeth"],
+    plan: {
+      answer: "Children have 20 baby teeth by about 3. From about 6 the adult teeth erupt beneath and behind them, starting with the first molars and lower incisors, until about 12 to 13.",
+      steps: [
+        { say: "At 3 years all 20 baby teeth are in. Adult teeth are already forming inside the jaw.", commands: [c("clearHighlights"), c("setAge", { years: 3 }), c("setLayer", { layer: "xray" }), c("setView", { view: "front" })] },
+        { say: "At 7 we have a mixed mouth: the first adult molars and incisors are in, while baby teeth wait their turn.", commands: [c("setAge", { years: 7 }), c("highlight", { teeth: ["16", "26", "36", "46", "31", "41"] })] },
+        { say: "By 13 almost every adult tooth is in place; wisdom teeth follow from about 17.", commands: [c("clearHighlights"), c("setAge", { years: 13 }), c("setLayer", { layer: "gums" })] },
+        { say: "And this is the adult mouth.", commands: [c("setAge", { years: null })] },
+      ],
+    },
+  },
+  {
     keys: ["canine", "eye tooth", "longest root", "13", "23", "33", "43"],
     plan: {
       answer: "Canines have the longest roots in the mouth, which makes them very stable; they guide the jaw in side-to-side movements.",
@@ -159,6 +172,7 @@ Known teeth: ${TEETH.filter((t) => t.dentition === "permanent").length} adult te
 };
 
 export const TUTOR_SUGGESTIONS = [
+  "When do baby teeth fall out?",
   "Why does 36 have two roots?",
   "How does FDI tooth numbering work?",
   "What are the layers inside a tooth?",
