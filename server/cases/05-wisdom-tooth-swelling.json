@@ -1,0 +1,89 @@
+{
+  "id": "wisdom-tooth-swelling",
+  "title": "Sore gum behind my last tooth",
+  "site": "third_molar",
+  "difficulty": 1,
+  "minutes": 6,
+  "patient": {
+    "name": "Aisha Raza",
+    "age": 19,
+    "sex": "female",
+    "complaint": "Pain and swelling at the back of my lower left jaw.",
+    "opening": "It's right at the back on the bottom left. The gum is swollen and it tastes horrible.",
+    "personality": "student, exams next week"
+  },
+  "history": {
+    "points": 15,
+    "required": ["onset", "taste", "opening", "swallow", "general", "medical"],
+    "topics": [
+      { "id": "onset", "label": "When it started", "keywords": ["when", "start", "how long have", "since", "began", "days"], "answer": "Four days ago. It's happened once before, last year, but it went away." },
+      { "id": "taste", "label": "Bad taste or discharge", "keywords": ["taste", "pus", "discharge", "smell", "breath"], "answer": "Yes, a horrible salty taste, and my breath smells." },
+      { "id": "opening", "label": "Mouth opening", "keywords": ["open", "mouth", "jaw", "stiff", "trismus", "yawn"], "answer": "It's hard to open wide, it feels stiff." },
+      { "id": "swallow", "label": "Swallowing and breathing", "keywords": ["swallow", "breath", "throat"], "answer": "Swallowing is a bit uncomfortable on that side, but I can eat and drink. Breathing is fine." },
+      { "id": "general", "label": "Feeling unwell", "keywords": ["fever", "temperature", "unwell", "ill", "hot", "shiver", "gland"], "answer": "No fever. I think there's a tender lump under my jaw." },
+      { "id": "biting", "label": "Biting", "keywords": ["bite", "biting", "chew", "upper tooth", "hits"], "answer": "When I close, the top tooth seems to bite on the swollen gum." },
+      { "id": "medical", "label": "Medical history", "keywords": ["medical", "medication", "medicine", "allerg", "health", "condition", "pregnan", "pill"], "answer": "I take the contraceptive pill. No allergies." },
+      { "id": "location", "label": "Where exactly", "keywords": ["where", "which tooth", "point", "side"], "answer": "Right at the very back, behind my last tooth on the bottom left." }
+    ]
+  },
+  "items": [
+    {
+      "id": "find", "stage": "examination", "competency": "examination", "type": "tooth", "points": 10,
+      "question": "Click the tooth at the centre of the problem.",
+      "helper": "Look right at the back of the lower left.",
+      "answer": ["38"], "partial": { "37": 0.5 },
+      "explain": "The partly erupted lower left third molar (38), covered by an inflamed flap of gum (the operculum).",
+      "reveal": "38 is partly erupted. The operculum over it is red and swollen with pus underneath. 28 bites on the flap. Mouth opening is 28 mm.",
+      "commands": [{ "type": "focusTeeth", "teeth": ["38"] }, { "type": "highlight", "teeth": ["38"], "color": "#FF7A2F" }]
+    },
+    {
+      "id": "tests", "stage": "investigations", "competency": "investigations", "type": "multi", "points": 15,
+      "question": "What would you check or arrange? Select all that apply.",
+      "options": ["Measure mouth opening", "Temperature and neck lymph nodes", "OPG", "Cold test on 38", "Biopsy of the gum", "Blood tests"],
+      "answer": ["Measure mouth opening", "Temperature and neck lymph nodes", "OPG"],
+      "explain": "Mouth opening and systemic signs tell you how severe and how far spread it is; an OPG shows the position of 38 and decay on 37.",
+      "findings": {
+        "Measure mouth opening": "28 mm (normal is about 40 to 50 mm).",
+        "Temperature and neck lymph nodes": "37.2 °C. One tender submandibular lymph node on the left.",
+        "OPG": "38 is mesioangularly impacted against 37. No caries on 37.",
+        "Cold test on 38": "Not useful here.",
+        "Biopsy of the gum": "Not indicated.",
+        "Blood tests": "Not needed; she is systemically well."
+      },
+      "commands": [{ "type": "setLayer", "layer": "xray" }, { "type": "setView", "view": "left" }]
+    },
+    {
+      "id": "dx", "stage": "diagnosis", "competency": "diagnosis", "type": "single", "points": 25,
+      "question": "What is the most likely diagnosis?",
+      "options": ["Pericoronitis", "Acute apical abscess", "Dry socket", "Tonsillitis", "Myofascial pain"],
+      "answer": ["Pericoronitis"],
+      "explain": "Inflammation of the gum flap around a partly erupted third molar, with pus, a bad taste and limited opening, is pericoronitis."
+    },
+    {
+      "id": "why", "stage": "diagnosis", "competency": "diagnosis", "type": "text", "points": 10,
+      "question": "In one or two sentences, justify your diagnosis.",
+      "expected": "A partly erupted, impacted 38 with a swollen, inflamed operculum and pus, a bad taste, trismus and an upper tooth biting on the flap.",
+      "keywords": [["partly erupted", "partially erupted", "impact", "wisdom", "third molar"], ["operculum", "flap", "gum over"], ["pus", "taste", "discharge"], ["opening", "trismus", "stiff"]]
+    },
+    {
+      "id": "plan", "stage": "management", "competency": "management", "type": "single", "points": 15,
+      "question": "What is the best management today?",
+      "options": ["Irrigate under the flap, pain relief and warm salt rinses; review", "Extract 38 today", "Antibiotics for everyone with pericoronitis", "Extract 37", "No treatment needed"],
+      "answer": ["Irrigate under the flap, pain relief and warm salt rinses; review"],
+      "explain": "Local measures come first. Antibiotics are for spreading infection or a systemically unwell patient. Removing 38 is considered once it has settled, especially as this is a repeat episode."
+    },
+    {
+      "id": "talk", "stage": "management", "competency": "communication", "type": "text", "points": 10,
+      "question": "When should Aisha seek urgent help?",
+      "expected": "If she struggles to swallow or breathe, if the swelling spreads into the neck or face, if she develops a fever or feels very unwell, or if she can barely open her mouth.",
+      "keywords": [["swallow"], ["breath"], ["spread", "neck", "face", "swelling worse"], ["fever", "unwell", "temperature", "can't open", "cannot open"]]
+    }
+  ],
+  "diagnosis": "Pericoronitis",
+  "keyTeeth": ["38"],
+  "teachingPoints": [
+    "Pericoronitis is inflammation of the operculum over a partly erupted tooth, most often a lower third molar.",
+    "Local measures first; antibiotics only for spreading infection or systemic signs.",
+    "Difficulty swallowing or breathing is an emergency."
+  ]
+}

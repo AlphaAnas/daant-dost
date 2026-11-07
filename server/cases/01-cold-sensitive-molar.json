@@ -1,0 +1,116 @@
+{
+  "id": "cold-sensitive-molar",
+  "title": "Zing with cold drinks",
+  "site": "teeth",
+  "difficulty": 1,
+  "minutes": 6,
+  "patient": {
+    "name": "Sara Ahmed",
+    "age": 24,
+    "sex": "female",
+    "complaint": "My bottom left tooth hurts when I drink something cold.",
+    "opening": "Hi... it's this tooth at the bottom left. Every time I drink something cold I get this sharp zing.",
+    "personality": "friendly, a little anxious about needles"
+  },
+  "history": {
+    "points": 15,
+    "required": ["onset", "trigger", "duration", "night", "biting", "medical"],
+    "topics": [
+      { "id": "onset", "label": "When it started", "keywords": ["when", "start", "how long have", "since", "began", "days", "weeks"], "answer": "It started about three days ago." },
+      { "id": "trigger", "label": "What sets it off", "keywords": ["cold", "hot", "sweet", "trigger", "what makes", "worse", "drink", "eat", "food"], "answer": "Cold drinks and ice cream set it off. Sweet things a little too. Hot drinks are fine." },
+      { "id": "duration", "label": "How long the pain lasts", "keywords": ["last", "linger", "how long does", "go away", "stay", "seconds", "minutes", "settle"], "answer": "It's a sharp zing, but it's gone within a few seconds once the cold is out of my mouth." },
+      { "id": "night", "label": "Night or spontaneous pain", "keywords": ["night", "sleep", "wake", "spontaneous", "on its own", "without", "throb", "constant"], "answer": "No, it never wakes me up and it doesn't hurt on its own. Only with cold." },
+      { "id": "biting", "label": "Pain on biting", "keywords": ["bite", "biting", "chew", "chewing", "pressure", "tap", "eat on"], "answer": "Chewing is fine, it doesn't hurt to bite." },
+      { "id": "location", "label": "Where exactly", "keywords": ["where", "which tooth", "point", "side", "location", "show me"], "answer": "Bottom left, towards the back. I think it's the big one behind the small ones." },
+      { "id": "dental", "label": "Dental history", "keywords": ["dentist", "last visit", "filling", "treatment", "check", "brush", "floss"], "answer": "I haven't been to the dentist in about two years. No fillings on that side as far as I know." },
+      { "id": "medical", "label": "Medical history", "keywords": ["medical", "medication", "medicine", "allerg", "health", "condition", "pregnan", "illness"], "answer": "I'm healthy. No medicines, no allergies." },
+      { "id": "relief", "label": "Pain relief", "keywords": ["painkiller", "ibuprofen", "paracetamol", "tablet", "pain relief", "helped"], "answer": "I haven't needed any painkillers." }
+    ]
+  },
+  "items": [
+    {
+      "id": "find",
+      "stage": "examination",
+      "competency": "examination",
+      "type": "tooth",
+      "points": 10,
+      "question": "Sara points to her lower left back teeth. Click the tooth you would examine first.",
+      "helper": "Click a tooth on the 3D mouth, then send.",
+      "answer": ["36"],
+      "partial": { "35": 0.5, "37": 0.5 },
+      "explain": "The lower left first molar (36) is the large tooth she points to, behind the premolars.",
+      "reveal": "On 36 there is a dark, chalky occlusal lesion. No swelling, no sinus tract, healthy gums.",
+      "commands": [{ "type": "focusTeeth", "teeth": ["36"] }, { "type": "showCondition", "tooth": "36", "condition": "caries", "surfaces": ["O"] }]
+    },
+    {
+      "id": "tests",
+      "stage": "investigations",
+      "competency": "investigations",
+      "type": "multi",
+      "points": 15,
+      "question": "Which tests would help you most now? Select all that apply.",
+      "options": ["Cold test", "Percussion", "Periapical radiograph", "OPG", "Electric pulp test", "Biopsy"],
+      "answer": ["Cold test", "Percussion", "Periapical radiograph"],
+      "explain": "A cold test shows how the pulp reacts and how long the pain lasts, percussion checks the periapical tissues, and a periapical radiograph shows how deep the caries is.",
+      "findings": {
+        "Cold test": "Sharp pain on 36 that is gone within 2 seconds of removing the cold. Neighbouring teeth respond normally.",
+        "Percussion": "36 is not tender to percussion.",
+        "Periapical radiograph": "Radiolucency in dentine under the occlusal fissure, clear of the pulp horn. Normal periapical tissues.",
+        "OPG": "Nothing extra. An OPG is not needed for one tooth.",
+        "Electric pulp test": "36 responds within the normal range.",
+        "Biopsy": "Not indicated."
+      },
+      "commands": [{ "type": "setLayer", "layer": "xray" }, { "type": "focusTeeth", "teeth": ["36"] }]
+    },
+    {
+      "id": "dx",
+      "stage": "diagnosis",
+      "competency": "diagnosis",
+      "type": "single",
+      "points": 25,
+      "question": "What is the most likely diagnosis?",
+      "options": ["Reversible pulpitis", "Symptomatic irreversible pulpitis", "Acute apical abscess", "Cracked tooth", "Dentine hypersensitivity"],
+      "answer": ["Reversible pulpitis"],
+      "explain": "Sharp pain provoked by cold that settles within seconds, no spontaneous or night pain and normal periapical tissues mean the pulp can recover once the caries is removed."
+    },
+    {
+      "id": "why",
+      "stage": "diagnosis",
+      "competency": "diagnosis",
+      "type": "text",
+      "points": 10,
+      "question": "In one or two sentences, justify your diagnosis.",
+      "expected": "The pain is provoked by cold and stops within seconds, there is no spontaneous or night pain, 36 is not tender to percussion and the caries is clear of the pulp, so the pulp is inflamed but can recover.",
+      "keywords": [["second", "short", "quick", "stops", "settles", "not linger", "doesn't linger", "no lingering", "brief", "goes away"], ["night", "spontaneous", "wake"], ["percussion", "tender", "bite", "periapical", "apical"], ["caries", "decay", "cavity", "lesion"]]
+    },
+    {
+      "id": "plan",
+      "stage": "management",
+      "competency": "management",
+      "type": "single",
+      "points": 15,
+      "question": "What is the best management?",
+      "options": ["Remove the caries and place a restoration", "Root canal treatment", "Extraction", "Antibiotics", "Fluoride varnish only and review"],
+      "answer": ["Remove the caries and place a restoration"],
+      "explain": "Removing the cause and sealing the tooth lets a reversibly inflamed pulp settle. Root canal treatment and extraction are overtreatment; antibiotics do not treat pulpitis.",
+      "commands": [{ "type": "setLayer", "layer": "gums" }, { "type": "showCondition", "tooth": "36", "condition": "filling", "surfaces": ["O"] }]
+    },
+    {
+      "id": "talk",
+      "stage": "management",
+      "competency": "communication",
+      "type": "text",
+      "points": 10,
+      "question": "Sara asks: \"Will I need a root canal?\" What would you tell her?",
+      "expected": "Most likely not. The nerve is irritated but healthy enough to recover, so we will remove the decay and place a filling and the sensitivity should settle. If the pain starts to linger or wakes you at night, come back, because that would mean the nerve is not recovering.",
+      "keywords": [["no", "not need", "shouldn't", "unlikely", "probably not"], ["filling", "restoration", "remove the decay"], ["recover", "heal", "settle", "healthy", "calm"], ["come back", "return", "linger", "night", "worse", "contact"]]
+    }
+  ],
+  "diagnosis": "Reversible pulpitis",
+  "keyTeeth": ["36"],
+  "teachingPoints": [
+    "Short, sharp pain to cold that stops within seconds points to reversible pulpitis.",
+    "Pain that lingers, or spontaneous and night pain, points to irreversible pulpitis.",
+    "Remove the cause and restore; antibiotics have no role in pulpitis."
+  ]
+}

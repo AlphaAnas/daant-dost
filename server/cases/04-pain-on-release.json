@@ -1,0 +1,90 @@
+{
+  "id": "pain-on-release",
+  "title": "Sharp pain when I stop biting",
+  "site": "teeth",
+  "difficulty": 3,
+  "minutes": 7,
+  "patient": {
+    "name": "Daniel Clarke",
+    "age": 45,
+    "sex": "male",
+    "complaint": "Sharp pain in a lower left tooth when I chew, especially when I let go.",
+    "opening": "Something's not right with a tooth on the lower left. When I chew something hard I get this sudden sharp pain. My last dentist couldn't find anything.",
+    "personality": "frustrated, analytical"
+  },
+  "history": {
+    "points": 15,
+    "required": ["onset", "biting", "release", "cold", "habits", "medical"],
+    "topics": [
+      { "id": "onset", "label": "When it started", "keywords": ["when", "start", "how long have", "since", "began", "weeks", "months"], "answer": "On and off for about two months." },
+      { "id": "biting", "label": "Pain on biting", "keywords": ["bite", "biting", "chew", "chewing", "hard food", "nuts"], "answer": "Only when I bite on something hard, like nuts or crusty bread. It's very sharp." },
+      { "id": "release", "label": "Pain on release", "keywords": ["release", "let go", "open", "after biting", "stop biting"], "answer": "Yes, actually, it's worst the moment I let go." },
+      { "id": "cold", "label": "Hot and cold", "keywords": ["cold", "hot", "drink", "sensitive", "temperature"], "answer": "Cold drinks give it a short twinge sometimes, nothing that lasts." },
+      { "id": "night", "label": "Night or spontaneous pain", "keywords": ["night", "sleep", "wake", "spontaneous", "on its own"], "answer": "No, it never hurts on its own." },
+      { "id": "habits", "label": "Grinding and habits", "keywords": ["grind", "clench", "brux", "habit", "stress", "ice", "pen"], "answer": "My wife says I grind my teeth at night. I also chew ice." },
+      { "id": "location", "label": "Where exactly", "keywords": ["where", "which tooth", "point", "side"], "answer": "Lower left, right at the back. Hard to say which one." },
+      { "id": "medical", "label": "Medical history", "keywords": ["medical", "medication", "medicine", "allerg", "health", "condition"], "answer": "Fit and well, no medicines." }
+    ]
+  },
+  "items": [
+    {
+      "id": "find", "stage": "examination", "competency": "examination", "type": "tooth", "points": 10,
+      "question": "The bite test isolates the pain to the lower left second molar. Click that tooth.",
+      "helper": "Second molar: two teeth behind the premolars.",
+      "answer": ["37"], "partial": { "36": 0.5, "38": 0.5 },
+      "explain": "The lower left second molar (37), a classic site for cracks, especially in people who grind.",
+      "reveal": "37 has a small restoration and a faint vertical line on the distal marginal ridge. Wear facets on the canines.",
+      "commands": [{ "type": "focusTeeth", "teeth": ["37"] }, { "type": "showCondition", "tooth": "37", "condition": "fractured", "surfaces": ["D"] }]
+    },
+    {
+      "id": "tests", "stage": "investigations", "competency": "investigations", "type": "multi", "points": 15,
+      "question": "Which tests would help you most now? Select all that apply.",
+      "options": ["Bite test on individual cusps", "Transillumination", "Cold test", "Periapical radiograph", "OPG", "Biopsy"],
+      "answer": ["Bite test on individual cusps", "Transillumination", "Cold test"],
+      "explain": "Biting on individual cusps reproduces the pain on release, transillumination shows the crack line, and the cold test checks the pulp. Radiographs rarely show cracks.",
+      "findings": {
+        "Bite test on individual cusps": "Sharp pain on releasing the bite on the distolingual cusp of 37.",
+        "Transillumination": "The light stops at a line running across the distal marginal ridge of 37.",
+        "Cold test": "Brief, normal response on 37.",
+        "Periapical radiograph": "Normal. Cracks are usually not visible.",
+        "OPG": "Normal.",
+        "Biopsy": "Not indicated."
+      },
+      "commands": [{ "type": "focusTeeth", "teeth": ["37"] }]
+    },
+    {
+      "id": "dx", "stage": "diagnosis", "competency": "diagnosis", "type": "single", "points": 25,
+      "question": "What is the most likely diagnosis?",
+      "options": ["Cracked tooth", "Reversible pulpitis", "Symptomatic irreversible pulpitis", "Periodontal abscess", "Dentine hypersensitivity"],
+      "answer": ["Cracked tooth"],
+      "explain": "Sharp pain on biting hard things, worst on release, reproduced on one cusp, a crack line on transillumination and a normal radiograph point to a cracked tooth."
+    },
+    {
+      "id": "why", "stage": "diagnosis", "competency": "diagnosis", "type": "text", "points": 10,
+      "question": "In one or two sentences, justify your diagnosis.",
+      "expected": "The pain is sharp, on biting hard food and worst on release, it is reproduced on one cusp with the bite test, transillumination shows a crack line, and the pulp responds normally with a normal radiograph.",
+      "keywords": [["release", "let go"], ["bite test", "one cusp", "cusp", "tooth sloth"], ["transillumin", "crack line", "line"], ["grind", "brux", "radiograph normal", "normal x-ray", "vital", "normal cold"]]
+    },
+    {
+      "id": "plan", "stage": "management", "competency": "management", "type": "single", "points": 15,
+      "question": "What is the best management?",
+      "options": ["Protect the cusps with a crown or onlay, and monitor the pulp", "Root canal treatment straight away", "Extraction", "Antibiotics", "Desensitising toothpaste"],
+      "answer": ["Protect the cusps with a crown or onlay, and monitor the pulp"],
+      "explain": "Cuspal coverage holds the crack together and stops it spreading. Root canal treatment is only needed if pulpitis develops. A night guard helps with the grinding.",
+      "commands": [{ "type": "showCondition", "tooth": "37", "condition": "crown" }]
+    },
+    {
+      "id": "talk", "stage": "management", "competency": "communication", "type": "text", "points": 10,
+      "question": "Daniel asks why his last dentist couldn't find anything. What do you say?",
+      "expected": "Cracks are often too fine to see on an X-ray, and only show with special tests like biting on each cusp or shining a light through the tooth. We will protect the tooth with a crown to stop the crack growing, and a night guard will help with the grinding.",
+      "keywords": [["x-ray", "radiograph", "not show", "hard to see", "invisible", "fine"], ["test", "light", "bite on", "cusp"], ["crown", "onlay", "protect", "cover"], ["grind", "night guard", "splint", "mouthguard", "ice"]]
+    }
+  ],
+  "diagnosis": "Cracked tooth",
+  "keyTeeth": ["37"],
+  "teachingPoints": [
+    "Sharp pain on release of biting is the hallmark of a cracked tooth.",
+    "Cracks rarely show on radiographs: use the bite test and transillumination.",
+    "Cover the cusps early to stop the crack from spreading into the pulp or root."
+  ]
+}

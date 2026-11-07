@@ -1,0 +1,90 @@
+{
+  "id": "swollen-front-tooth",
+  "title": "Swelling above a dark front tooth",
+  "site": "teeth",
+  "difficulty": 2,
+  "minutes": 7,
+  "patient": {
+    "name": "Lina Haddad",
+    "age": 30,
+    "sex": "female",
+    "complaint": "My front tooth hurts and the gum above it is swollen.",
+    "opening": "My front tooth is killing me and there's a lump on the gum above it. I can't even touch it.",
+    "personality": "worried about how her smile looks"
+  },
+  "history": {
+    "points": 15,
+    "required": ["onset", "trauma", "biting", "swelling", "general", "medical"],
+    "topics": [
+      { "id": "onset", "label": "When it started", "keywords": ["when", "start", "how long have", "since", "began", "days"], "answer": "The throbbing started two days ago and the lump appeared yesterday." },
+      { "id": "trauma", "label": "Past trauma", "keywords": ["trauma", "hit", "accident", "fall", "injur", "knock", "sport", "blow"], "answer": "Now you mention it, I got hit in the mouth with a ball about five years ago. The tooth went a bit grey after that." },
+      { "id": "biting", "label": "Pain on biting", "keywords": ["bite", "biting", "chew", "pressure", "touch", "tap"], "answer": "I can't bite on it at all, even touching it with my tongue hurts." },
+      { "id": "cold", "label": "Hot and cold", "keywords": ["cold", "hot", "drink", "sensitive", "temperature"], "answer": "Cold doesn't bother it at all. Hot maybe makes the throbbing a little worse." },
+      { "id": "swelling", "label": "Swelling", "keywords": ["swell", "lump", "bump", "face", "spread", "eye", "lip"], "answer": "Just the lump on the gum above the tooth. My face isn't swollen and my eye is fine." },
+      { "id": "general", "label": "Feeling unwell", "keywords": ["fever", "temperature", "unwell", "ill", "swallow", "breath", "hot", "shiver"], "answer": "I feel a bit tired but no fever. Swallowing and breathing are fine." },
+      { "id": "medical", "label": "Medical history", "keywords": ["medical", "medication", "medicine", "allerg", "health", "condition", "pregnan"], "answer": "I'm allergic to penicillin. Otherwise healthy." },
+      { "id": "location", "label": "Where exactly", "keywords": ["where", "which tooth", "point", "side"], "answer": "Upper front, the one just left of the middle. The darker one." }
+    ]
+  },
+  "items": [
+    {
+      "id": "find", "stage": "examination", "competency": "examination", "type": "tooth", "points": 10,
+      "question": "Lina points to her upper front teeth, the darker one on her left. Click the tooth you would examine.",
+      "helper": "Remember: her left is on your right when you face her.",
+      "answer": ["21"], "partial": { "11": 0.5, "22": 0.5 },
+      "explain": "The upper left central incisor (21). On the 3D mouth, the patient's left is on your right in the front view.",
+      "reveal": "21 is grey compared with 11. There is a fluctuant swelling in the labial sulcus above it.",
+      "commands": [{ "type": "setView", "view": "front" }, { "type": "focusTeeth", "teeth": ["21"] }, { "type": "showCondition", "tooth": "21", "condition": "abscess" }]
+    },
+    {
+      "id": "tests", "stage": "investigations", "competency": "investigations", "type": "multi", "points": 15,
+      "question": "Which tests would help you most now? Select all that apply.",
+      "options": ["Cold test", "Percussion", "Periapical radiograph", "Bite test", "Biopsy", "CBCT"],
+      "answer": ["Cold test", "Percussion", "Periapical radiograph"],
+      "explain": "Sensibility testing confirms the pulp has died, percussion shows periapical inflammation and the radiograph shows the periapical lesion.",
+      "findings": {
+        "Cold test": "No response on 21. 11 and 22 respond normally.",
+        "Percussion": "21 is very tender to percussion.",
+        "Periapical radiograph": "Periapical radiolucency at the apex of 21. The root canal is wider than on 11.",
+        "Bite test": "Too painful to do, and adds nothing here.",
+        "Biopsy": "Not indicated.",
+        "CBCT": "Not needed first line."
+      },
+      "commands": [{ "type": "setLayer", "layer": "xray" }, { "type": "focusTeeth", "teeth": ["21"] }]
+    },
+    {
+      "id": "dx", "stage": "diagnosis", "competency": "diagnosis", "type": "single", "points": 25,
+      "question": "What is the most likely diagnosis?",
+      "options": ["Acute apical abscess", "Symptomatic irreversible pulpitis", "Periodontal abscess", "Reversible pulpitis", "Cracked tooth"],
+      "answer": ["Acute apical abscess"],
+      "explain": "A non-vital, discoloured tooth after old trauma, very tender to percussion, with a fluctuant swelling and a periapical radiolucency, is an acute apical abscess from pulp necrosis."
+    },
+    {
+      "id": "why", "stage": "diagnosis", "competency": "diagnosis", "type": "text", "points": 10,
+      "question": "In one or two sentences, justify your diagnosis.",
+      "expected": "The tooth is non-vital (no response to cold, grey after old trauma), very tender to percussion, and has a fluctuant swelling with a periapical radiolucency, so infection from the dead pulp has spread beyond the apex.",
+      "keywords": [["no response", "non-vital", "nonvital", "dead", "necro", "negative"], ["trauma", "grey", "gray", "discolo"], ["percussion", "tender", "bite"], ["radiolucen", "periapical", "apex", "swelling", "pus", "fluctuant"]]
+    },
+    {
+      "id": "plan", "stage": "management", "competency": "management", "type": "single", "points": 15,
+      "question": "What is the best management?",
+      "options": ["Drain the abscess and start root canal treatment", "Antibiotics alone and review", "Extraction straight away", "Scale and polish", "Review in one month"],
+      "answer": ["Drain the abscess and start root canal treatment"],
+      "explain": "Drainage through the canal or an incision, then root canal treatment, removes the source. Antibiotics are only an add-on if the infection spreads or she is systemically unwell, and she is allergic to penicillin.",
+      "commands": [{ "type": "section", "tooth": "21" }]
+    },
+    {
+      "id": "talk", "stage": "management", "competency": "communication", "type": "text", "points": 10,
+      "question": "What warning signs would you tell Lina to look out for after she leaves?",
+      "expected": "Seek urgent help or go to the emergency department if the swelling spreads, especially towards the eye, if she gets a fever or feels very unwell, or if she has any difficulty swallowing or breathing.",
+      "keywords": [["spread", "bigger", "worse", "eye", "face"], ["fever", "temperature", "unwell"], ["swallow", "breath"], ["emergency", "urgent", "hospital", "come back", "call"]]
+    }
+  ],
+  "diagnosis": "Acute apical abscess",
+  "keyTeeth": ["21"],
+  "teachingPoints": [
+    "A grey tooth after old trauma is often non-vital.",
+    "Treat the source: drain and clean the canal. Antibiotics are only an adjunct for spreading infection.",
+    "Always give clear red-flag advice about spreading swelling and difficulty swallowing or breathing."
+  ]
+}

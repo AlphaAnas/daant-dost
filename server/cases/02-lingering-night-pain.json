@@ -1,0 +1,91 @@
+{
+  "id": "lingering-night-pain",
+  "title": "Pain that keeps me up at night",
+  "site": "teeth",
+  "difficulty": 2,
+  "minutes": 7,
+  "patient": {
+    "name": "Omar Siddiqui",
+    "age": 38,
+    "sex": "male",
+    "complaint": "Throbbing pain in my lower right back tooth, worse at night.",
+    "opening": "I've barely slept for two nights. It's my lower right tooth, it just throbs and throbs.",
+    "personality": "tired, irritable, wants it fixed today"
+  },
+  "history": {
+    "points": 15,
+    "required": ["onset", "trigger", "duration", "night", "biting", "medical"],
+    "topics": [
+      { "id": "onset", "label": "When it started", "keywords": ["when", "start", "how long have", "since", "began", "days"], "answer": "It was a bit sensitive for a couple of weeks, but the bad pain started two days ago." },
+      { "id": "trigger", "label": "What sets it off", "keywords": ["cold", "hot", "trigger", "what makes", "worse", "drink", "tea", "coffee", "food"], "answer": "Hot tea is the worst. Cold sets it off too, and sometimes it starts on its own." },
+      { "id": "duration", "label": "How long the pain lasts", "keywords": ["last", "linger", "how long does", "go away", "stay", "minutes", "seconds", "settle"], "answer": "Once it starts it goes on for ages, ten minutes or more, even after I've finished the drink." },
+      { "id": "night", "label": "Night or spontaneous pain", "keywords": ["night", "sleep", "wake", "spontaneous", "on its own", "lying", "throb"], "answer": "Yes, it wakes me up. It's worse when I lie down." },
+      { "id": "biting", "label": "Pain on biting", "keywords": ["bite", "biting", "chew", "chewing", "pressure", "tap"], "answer": "A little tender when I bite on it, not too bad." },
+      { "id": "location", "label": "Where exactly", "keywords": ["where", "which tooth", "point", "side", "location"], "answer": "Lower right, the big tooth with the old silver filling. Sometimes it feels like it goes up to my ear." },
+      { "id": "dental", "label": "Dental history", "keywords": ["dentist", "last visit", "filling", "treatment", "check"], "answer": "That tooth had a big silver filling maybe ten years ago." },
+      { "id": "medical", "label": "Medical history", "keywords": ["medical", "medication", "medicine", "allerg", "health", "condition", "diabet", "blood"], "answer": "I take a tablet for blood pressure, amlodipine. No allergies." },
+      { "id": "relief", "label": "Pain relief", "keywords": ["painkiller", "ibuprofen", "paracetamol", "tablet", "pain relief", "helped", "antibiotic"], "answer": "Ibuprofen takes the edge off for a couple of hours. Can't you just give me antibiotics?" }
+    ]
+  },
+  "items": [
+    {
+      "id": "find", "stage": "examination", "competency": "examination", "type": "tooth", "points": 10,
+      "question": "Omar points to his lower right back teeth. Click the tooth you would examine first.",
+      "helper": "Click a tooth on the 3D mouth, then send.",
+      "answer": ["46"], "partial": { "45": 0.5, "47": 0.5 },
+      "explain": "The lower right first molar (46) carries the old large restoration he describes.",
+      "reveal": "46 has a large MOD amalgam with dark recurrent caries at the distal margin. No swelling.",
+      "commands": [{ "type": "focusTeeth", "teeth": ["46"] }, { "type": "showCondition", "tooth": "46", "condition": "filling", "surfaces": ["M", "O", "D"] }, { "type": "showCondition", "tooth": "46", "condition": "caries", "surfaces": ["D"] }]
+    },
+    {
+      "id": "tests", "stage": "investigations", "competency": "investigations", "type": "multi", "points": 15,
+      "question": "Which tests would help you most now? Select all that apply.",
+      "options": ["Cold test", "Percussion", "Periapical radiograph", "Biopsy", "Blood tests", "OPG"],
+      "answer": ["Cold test", "Percussion", "Periapical radiograph"],
+      "explain": "The cold test shows how long the pain lingers, percussion checks whether the inflammation has reached the periapical tissues, and the radiograph shows how close the caries is to the pulp.",
+      "findings": {
+        "Cold test": "Intense pain on 46 that lingers for about a minute after the cold is removed.",
+        "Percussion": "46 is mildly tender to percussion.",
+        "Periapical radiograph": "Deep restoration with caries close to the pulp. Slight widening of the periodontal ligament space at the apices.",
+        "Biopsy": "Not indicated.",
+        "Blood tests": "Not needed for this.",
+        "OPG": "Nothing extra beyond the periapical."
+      },
+      "commands": [{ "type": "setLayer", "layer": "xray" }, { "type": "focusTeeth", "teeth": ["46"] }]
+    },
+    {
+      "id": "dx", "stage": "diagnosis", "competency": "diagnosis", "type": "single", "points": 25,
+      "question": "What is the most likely diagnosis?",
+      "options": ["Reversible pulpitis", "Symptomatic irreversible pulpitis", "Pulp necrosis", "Acute apical abscess", "Cracked tooth"],
+      "answer": ["Symptomatic irreversible pulpitis"],
+      "explain": "Pain that lingers after the stimulus, spontaneous pain and pain that wakes him at night mean the pulp cannot recover. It still responds to cold, so it is not necrotic."
+    },
+    {
+      "id": "why", "stage": "diagnosis", "competency": "diagnosis", "type": "text", "points": 10,
+      "question": "In one or two sentences, justify your diagnosis.",
+      "expected": "The pain lingers for a long time after hot or cold, it is spontaneous and wakes him at night, and the tooth still responds to cold, so the pulp is irreversibly inflamed but still vital.",
+      "keywords": [["linger", "minute", "long time", "persist", "stays"], ["night", "spontaneous", "wake", "on its own"], ["responds", "vital", "alive", "cold test positive", "still reacts"], ["deep", "caries", "close to the pulp", "recurrent"]]
+    },
+    {
+      "id": "plan", "stage": "management", "competency": "management", "type": "single", "points": 15,
+      "question": "What is the best first management today?",
+      "options": ["Pulpotomy or pulp extirpation, then root canal treatment", "Antibiotics and review in a week", "Replace the filling and review", "Desensitising toothpaste", "No treatment needed"],
+      "answer": ["Pulpotomy or pulp extirpation, then root canal treatment"],
+      "explain": "Removing the inflamed pulp relieves the pain and starts root canal treatment (extraction if the tooth cannot be restored). Antibiotics do not relieve pulpitis.",
+      "commands": [{ "type": "section", "tooth": "46" }]
+    },
+    {
+      "id": "talk", "stage": "management", "competency": "communication", "type": "text", "points": 10,
+      "question": "Omar says: \"Can't you just give me antibiotics?\" How do you answer?",
+      "expected": "Antibiotics will not help, because the pain comes from an inflamed nerve inside the tooth, not from an infection that has spread. The way to stop the pain is to remove the inflamed nerve today and start root canal treatment, and painkillers like ibuprofen can help until then.",
+      "keywords": [["not help", "won't help", "don't work", "no antibiotic", "not needed", "will not"], ["nerve", "pulp", "inside the tooth", "inflamed"], ["root canal", "remove", "extirpat", "clean"], ["ibuprofen", "painkiller", "pain relief", "analges"]]
+    }
+  ],
+  "diagnosis": "Symptomatic irreversible pulpitis",
+  "keyTeeth": ["46"],
+  "teachingPoints": [
+    "Lingering pain, spontaneous pain and night pain mean the pulp is irreversibly inflamed.",
+    "Pulp extirpation gives the fastest relief; antibiotics do not treat pulpitis.",
+    "Pain from lower molars is often referred towards the ear."
+  ]
+}

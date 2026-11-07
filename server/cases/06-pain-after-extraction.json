@@ -1,0 +1,89 @@
+{
+  "id": "pain-after-extraction",
+  "title": "Worse pain three days after an extraction",
+  "site": "jaw",
+  "difficulty": 1,
+  "minutes": 6,
+  "patient": {
+    "name": "Kamal Perera",
+    "age": 52,
+    "sex": "male",
+    "complaint": "Terrible pain where my tooth was taken out three days ago.",
+    "opening": "You took a tooth out on Monday. It was fine at first, but since yesterday the pain is unbearable.",
+    "personality": "smoker, embarrassed about it"
+  },
+  "history": {
+    "points": 15,
+    "required": ["onset", "character", "smoking", "swelling", "general", "medical"],
+    "topics": [
+      { "id": "onset", "label": "When it started", "keywords": ["when", "start", "how long", "since", "began", "day"], "answer": "The extraction was three days ago. It got much worse yesterday, on day two." },
+      { "id": "character", "label": "What the pain is like", "keywords": ["like", "describe", "throb", "sharp", "ear", "radiat", "spread", "constant", "severe"], "answer": "A deep throbbing that goes up to my ear. Painkillers barely touch it." },
+      { "id": "smoking", "label": "Smoking", "keywords": ["smok", "cigarette", "vape", "tobacco"], "answer": "I'll be honest... I smoked the same evening. About fifteen a day." },
+      { "id": "taste", "label": "Bad taste", "keywords": ["taste", "smell", "breath", "pus"], "answer": "There's a nasty taste and my breath is bad." },
+      { "id": "swelling", "label": "Swelling", "keywords": ["swell", "lump", "face", "bump"], "answer": "No, my face isn't swollen." },
+      { "id": "general", "label": "Feeling unwell", "keywords": ["fever", "temperature", "unwell", "ill", "hot", "swallow"], "answer": "No fever, I'm fine apart from the pain." },
+      { "id": "aftercare", "label": "Aftercare", "keywords": ["rinse", "spit", "aftercare", "instructions", "straw", "brush"], "answer": "I rinsed quite hard the next morning because of the blood taste." },
+      { "id": "medical", "label": "Medical history", "keywords": ["medical", "medication", "medicine", "allerg", "health", "condition", "bisphosph", "diabet"], "answer": "Type 2 diabetes, on metformin. No other medicines, no allergies." }
+    ]
+  },
+  "items": [
+    {
+      "id": "find", "stage": "examination", "competency": "examination", "type": "tooth", "points": 10,
+      "question": "The tooth taken out was the lower right first molar. Click where it was.",
+      "helper": "Lower right, the first big tooth behind the premolars.",
+      "answer": ["46"], "partial": { "45": 0.5, "47": 0.5 },
+      "explain": "The lower right first molar (46). FDI: quadrant 4 is lower right, position 6 is the first molar.",
+      "reveal": "The socket of 46 is empty with exposed grey bone, food debris and no blood clot. No swelling; the gum edges look healthy.",
+      "commands": [{ "type": "focusTeeth", "teeth": ["46"] }, { "type": "showCondition", "tooth": "46", "condition": "missing" }, { "type": "setLayer", "layer": "bone" }]
+    },
+    {
+      "id": "tests", "stage": "investigations", "competency": "investigations", "type": "multi", "points": 15,
+      "question": "What would you check or arrange? Select all that apply.",
+      "options": ["Look into the socket after gentle irrigation", "Periapical radiograph if a retained root is suspected", "Temperature", "Cold test on the socket", "Biopsy", "Blood culture"],
+      "answer": ["Look into the socket after gentle irrigation", "Periapical radiograph if a retained root is suspected", "Temperature"],
+      "explain": "Seeing the empty socket with bare bone confirms it; a radiograph rules out a retained root or fragment; temperature helps exclude spreading infection.",
+      "findings": {
+        "Look into the socket after gentle irrigation": "Empty socket, exposed bone, very tender to a gentle probe.",
+        "Periapical radiograph if a retained root is suspected": "Empty socket, no retained root fragments.",
+        "Temperature": "36.8 °C.",
+        "Cold test on the socket": "Not meaningful: there is no tooth.",
+        "Biopsy": "Not indicated.",
+        "Blood culture": "Not indicated."
+      },
+      "commands": [{ "type": "setLayer", "layer": "xray" }]
+    },
+    {
+      "id": "dx", "stage": "diagnosis", "competency": "diagnosis", "type": "single", "points": 25,
+      "question": "What is the most likely diagnosis?",
+      "options": ["Alveolar osteitis (dry socket)", "Osteomyelitis", "Retained root", "Acute apical abscess of 47", "Fractured mandible"],
+      "answer": ["Alveolar osteitis (dry socket)"],
+      "explain": "Severe throbbing pain starting two to four days after an extraction, radiating to the ear, with an empty socket and exposed bone in a smoker, is dry socket."
+    },
+    {
+      "id": "why", "stage": "diagnosis", "competency": "diagnosis", "type": "text", "points": 10,
+      "question": "In one or two sentences, justify your diagnosis.",
+      "expected": "The pain started two to three days after the extraction and radiates to the ear, the socket is empty with exposed bone and no clot, and he smoked and rinsed hard, which dislodge the clot. There is no swelling or fever.",
+      "keywords": [["day", "two", "three", "after the extraction"], ["empty", "no clot", "exposed bone", "bone"], ["smok", "rins"], ["ear", "radiat", "no swelling", "no fever"]]
+    },
+    {
+      "id": "plan", "stage": "management", "competency": "management", "type": "single", "points": 15,
+      "question": "What is the best management?",
+      "options": ["Irrigate the socket, place an antiseptic dressing, pain relief and review", "Antibiotics alone", "Curette the socket hard to make it bleed", "Refer to hospital", "Extract 47"],
+      "answer": ["Irrigate the socket, place an antiseptic dressing, pain relief and review"],
+      "explain": "Gentle saline irrigation, an antiseptic dressing such as Alvogyl, analgesia and review every few days until it settles. Antibiotics are not routinely needed."
+    },
+    {
+      "id": "talk", "stage": "management", "competency": "communication", "type": "text", "points": 10,
+      "question": "Give Kamal two pieces of advice to help it heal.",
+      "expected": "Avoid smoking while it heals, do not rinse hard or use straws, keep the area clean with gentle warm salt-water rinses after meals, take painkillers regularly and come back for the dressing to be changed.",
+      "keywords": [["smok"], ["rinse", "salt", "gentle", "clean"], ["painkiller", "ibuprofen", "paracetamol", "pain relief"], ["come back", "review", "dressing", "return"]]
+    }
+  ],
+  "diagnosis": "Alveolar osteitis (dry socket)",
+  "keyTeeth": ["46"],
+  "teachingPoints": [
+    "Dry socket: severe pain two to four days after an extraction, an empty socket and exposed bone.",
+    "Smoking, vigorous rinsing and lower molar extractions raise the risk.",
+    "Treat locally with irrigation, a dressing and analgesia; antibiotics are not routine."
+  ]
+}
