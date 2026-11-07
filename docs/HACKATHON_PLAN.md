@@ -19,12 +19,12 @@ Progress = done tasks ÷ total tasks in that track (stretch tasks are not counte
 | Track | Done | Total | Progress |
 |---|---|---|---|
 | Setup (both) | 3 | 3 | 100% |
-| Dev A: 3D and UI | 5 | 10 | 50% (age mouth A4-A7 in progress) |
+| Dev A: 3D and UI | 9 | 10 | 90% (age model still needs a real-browser check, see U1) |
 | Dev B: Backend and AI | 9 | 10 | 90% |
 | Demo readiness (both) | 0 | 4 | 0% |
-| **Overall** | **17** | **27** | **63%** |
+| **Overall** | **21** | **27** | **78%** |
 
-Bonus done: B-S1 AI case generator (stretch).
+Bonus done: B-S1 AI case generator (stretch). Remaining work is assigned by domain in [TEAM_TASKS.md](TEAM_TASKS.md).
 
 **Notes on what shipped (Nov 7):** the AI examiner returns full JSON turns rather than a
 token stream (the UI reveals text word by word instead). Progress (XP, streak, weak spots)
@@ -299,10 +299,10 @@ response or a mock command list).
 | A1 | Design kit (Button, Panel, Sheet, Segmented, Slider, Toast) + theme tokens light/dark + AppShell with nav + routes for every screen | Every route opens with a title; theme toggle works | ✅ |
 | A2 | Scene store (zustand) + `sceneCommands.js` validator + `runSequence(steps)` for timed steps; viewer toolbar goes through the store | Buttons, keyboard and a test command list all move the view | ✅ |
 | A3 | Camera commands for teeth and regions, `highlight` glow, `section` from a command | `focusTeeth ["36"]` + `highlight` + `section` work from code | ✅ |
-| A4 | `chronology.js` + `dentitionAtAge()` + quick tests (ages 0, 1, 3, 7, 12.25, 25) | Tests pass | 🟨 |
-| A5 | Baby teeth (scaled shortcut) + eruption movement + falling out | At age 7 you see a mixed mouth with adult teeth inside the bone in the X-ray view | 🟨 |
-| A6 | Crown and root formation in the shader + jaw growth | Young teeth show short roots; the jaw grows smoothly | 🟨 |
-| A7 | Timeline UI (milestones, Play, counter) on Explore | Scrubbing 0 to 25 is smooth, about 60 fps on a laptop | 🟨 |
+| A4 | `chronology.js` + `dentitionAtAge()` + quick tests (ages 0, 1, 3, 7, 12.25, 25) | Tests pass | ✅ |
+| A5 | Baby teeth (scaled shortcut) + eruption movement + falling out | At age 7 you see a mixed mouth with adult teeth inside the bone in the X-ray view | ✅ |
+| A6 | Crown and root formation in the shader + jaw growth | Young teeth show short roots; the jaw grows smoothly | ✅ |
+| A7 | Timeline UI (milestones, Play, counter) on Explore | Scrubbing 0 to 25 is smooth, about 60 fps on a laptop | ✅ |
 | A8 | Explore page: tutor drawer UI with streamed answer, step captions, study notes | A canned tutor answer plays as a guided tour | ✅ |
 | A9 | `showCondition` looks (cavity, fracture, filling, crown, root canal, missing) + Explain page player with voice and step bar | A canned "filling" script plays end to end with narration | ✅ |
 | A10 | Home page hero, Cmd-K palette, shortcuts, mobile layout, motion polish | Looks finished on a laptop and a phone | 🟨 |

@@ -1,66 +1,93 @@
-# ToothTwin: who does what next
+# ToothTwin: who does what
 
-Read [CLAUDE.md](../CLAUDE.md) first (setup, map of the code, the rules). Work from
-`develop` on `feat/<topic>` branches and open PRs into `develop`.
+Read [CLAUDE.md](../CLAUDE.md) first (setup, code map, rules). Branch from `develop`
+(`feat/<topic>`), open a PR into `develop`, and ask the other developer to review.
+
+ToothTwin serves three kinds of user. Each developer owns whole user domains end to end
+(UI, API routes, AI prompts, tests), so you rarely touch the same files.
+
+| Domain | Who it serves | Owner |
+|---|---|---|
+| **Student** | Dental students: AI assessment, AI tutor, Learn drills, progress | **M-Haris346** |
+| **Patient** | Patients and parents: treatment walkthroughs, "my child's teeth" age timeline | **uroojfatim** |
+| **Teacher** | Lecturers: write stations with AI, see class results | **uroojfatim** |
+| **Lead** | API key, deploy, clinical review, demo | **Project lead (Arfin6900)** |
 
 ## Where we are (Nov 7)
 
-**Done and pushed on `develop`:**
-- AI assessment: 6 patient stations, AI patient, AI marking and coaching, report, practice and exam modes
+Done on `develop` (72 tests passing):
+- AI assessment: 6 stations, AI patient, AI marking and coaching, report, practice and exam modes
 - AI-written stations
 - AI tutor that drives the 3D mouth
-- Learn drills with XP, streak and weak spots
+- Learn drills
 - Treatment walkthroughs in 7 languages
-- Rate limiting, Render deploy config, 58 tests
+- **Age timeline** from 0 to 25 years, with baby teeth, eruption and jaw growth (`/explore?age=7`)
+- Rate limiting, Render deploy config
 
-**In progress (being merged now):** the age-based mouth: a 0–25 year timeline with baby
-teeth, eruption and jaw growth (`feat/age-based-mouth`).
+**Time left:** about **1 working day each** for the demo-critical tasks (marked ★), and
+about 2 days for everything below except the stretch tasks.
 
-**Remaining time:** about **1 working day for the two of you** to finish everything needed
-for the demo (Teammate A tasks A1–A4, Teammate B tasks B1–B3, then the demo checklist).
-About **2 days** including the teacher view and server-side progress. Stretch items are
-extra.
+Status: ⬜ todo · 🟨 in progress · ✅ done. Tick your rows when your PR merges, and update
+`docs/HACKATHON_PLAN.md` section 0.
 
-Status key: ⬜ todo · 🟨 in progress · ✅ done. Tick tasks here and in
-`docs/HACKATHON_PLAN.md` when merged.
+## File ownership (to avoid merge conflicts)
+
+| Owner | Owns |
+|---|---|
+| M-Haris346 | `server/engine.js`, `server/assessor.js`, `server/cases/`, `server/caseAuthor.js`, `server/tutor.js`, `src/features/assess/`, `src/features/learn/`, `src/features/explore/TutorPanel.jsx` |
+| uroojfatim | `server/explain.js`, new `server/teach.js`, `src/features/explain/`, new `src/features/patient/` and `src/features/teach/`, `src/features/explore/AgeTimeline.jsx`, `src/components/dental/three/ageModel.js`, `src/app/` (palette, nav) |
+| Shared (PR approved by both) | `src/shared/sceneCommands.js`, `src/scene/sceneStore.js`, `src/components/dental/three/DentalScene.jsx` and `DentalViewer.jsx`, `server/app.js` |
+
+`server/app.js` tip: put new routes in your own module (`export const teachRoutes = (api, deps) => { ... }`)
+and add a single line to `app.js` to register it, so you both rarely edit the same lines.
 
 ---
 
-## Teammate A: frontend, 3D and experience
+## M-Haris346: Student domain
 
-| ID | Task | Files | Done when | Est. | Status |
-|---|---|---|---|---|---|
-| A1 | **Age timeline: review and polish** after `feat/age-based-mouth` merges. Mount `AgeTimeline` on Explore (as a child of `DentalViewer`), check ages 3, 7, 10, 15 and 25 by eye, tune baby-tooth positions and the jaw scale in `ageModel.js` | `src/features/explore/`, `src/components/dental/three/ageModel.js` | Scrubbing 0→25 looks believable and smooth on a laptop; the tutor can show an age (`setAge`) | 2–3 h | ⬜ |
-| A2 | **"Which teeth at what age" drill** in Learn, using `dentitionAtAge` (e.g. "Which of these has erupted at 7?", "Click the first adult tooth to appear") | `src/features/learn/quizEngine.js` (+ tests), `QuizPage.jsx` | New mode in `QUIZ_MODES`, tested like the others | 1–2 h | ⬜ |
-| A3 | **Mobile pass** at 375 px: assessment screen (3D on top, composer always visible), report, quiz, explain player, nav menu | `src/features/**` | Every page usable one-handed on a phone; screenshots in the PR | 1–2 h | ⬜ |
-| A4 | **Cmd/Ctrl-K palette and shortcuts**: jump to pages, teeth ("36"), ages; `1`–`5` layers, `Space` spin, `?` help sheet | `src/app/` (new `CommandPalette.jsx`, `useShortcuts.js`) | Works on every page with a 3D view; ignored while typing in inputs | 1–2 h | ⬜ |
-| A5 | **First-run tour** on the assessment screen (3 hints: chat, 3D tooth picking, finish) | `src/features/assess/` | Shown once (localStorage), skippable | 1 h | ⬜ |
-| A6 | **Fix lint**: `eslint.config.js` ignores `src`; lint everything and fix | `eslint.config.js` | `npm run lint` passes | 30–60 min | ⬜ |
-| A-S1 | Stretch: **voice questions** to the patient (mic button using the Web Speech API) | `Composers.jsx` | Speak a question; it appears and sends | 1–2 h | ⬜ |
+| ID | Task | Done when | Est. | Status |
+|---|---|---|---|---|
+| H1 ★ | **Run the student AI features with a real key** (the lead will share it; put it in `.env`). Play every station in practice and exam modes; ask the tutor 15 questions; generate 3 stations. Tune the prompts in `assessor.js`, `tutor.js` and `caseAuthor.js` where the patient gives away the diagnosis, marking is too harsh or too lenient, or tutor commands show the wrong teeth | The PR lists what you changed and typical response times | 2–3 h | ⬜ |
+| H2 ★ | **Four more stations** in `server/cases/`: periodontal abscess or periodontitis, a non-healing ulcer (urgent referral), TMJ disc displacement with reduction, and an avulsed tooth (trauma). Copy the shape of `01-cold-sensitive-molar.json` | `npm test` passes (each worth 100, valid teeth and commands); the lead has had them clinically reviewed | 2–3 h | ⬜ |
+| H3 | **"Which teeth at what age" drill** in Learn using `dentitionAtAge` from `src/shared/chronology.js` (e.g. "At 7, which of these has erupted?", "Click the first adult tooth to appear"), plus tests | New mode in `QUIZ_MODES`, tested like the others | 1–2 h | ⬜ |
+| H4 | **Progress on the server**: `GET/POST /api/progress` (XP, streak, misses per tooth) per `studentId` in `server/store.js`; `src/features/learn/progress.js` uses it, falling back to localStorage; the assessment report shows "your best on this station" | Progress survives a new browser with the same student id; tests | 1–2 h | ⬜ |
+| H5 | **Stream the patient's replies** word by word (SSE + `client.messages.stream` in `server/ai.js`; the thread shows them live) | First words appear in under a second | 1–2 h | ⬜ |
+| H6 | **Student dashboard on `/assess`**: attempts over time, average per skill (history, examination…), "weakest skill: practise this station" | Shows after 2 or more attempts | 1–2 h | ⬜ |
+| H-S1 | Stretch: **speak questions** to the patient (mic button using the Web Speech API in `Composers.jsx`) | Speak a question; it appears and sends | 1–2 h | ⬜ |
 
-## Teammate B: backend, AI and content
+## uroojfatim: Patient and Teacher domains
 
-| ID | Task | Files | Done when | Est. | Status |
-|---|---|---|---|---|---|
-| B1 | **Run every AI path with a real key** (most important). Put `ANTHROPIC_API_KEY` in `.env`; play a whole station in practice and exam mode, ask the tutor 10 questions, play Explain in Urdu and Arabic, generate 3 stations. Fix prompts that misbehave (patient revealing the diagnosis, marking too harsh or lenient, tutor commands that don't show the right teeth) | `server/assessor.js`, `server/tutor.js`, `server/explain.js`, `server/caseAuthor.js` | Notes in the PR: what you changed, typical latency per route | 2–3 h | ⬜ |
-| B2 | **Deploy** on Render with `render.yaml` (add the key as a secret; optional MongoDB Atlas `MONGO_URI`). Share the URL with the team | `render.yaml` | Public URL works end to end with AI on | 1 h | ⬜ |
-| B3 | **Four more stations**: periodontal (perio abscess or periodontitis), mucosa (non-healing ulcer: refer urgently), TMJ (disc displacement with reduction), trauma (avulsed tooth). Same JSON shape as `server/cases/01-*.json`; ask a dental student to review all 10 | `server/cases/` | `npm test` passes (100 points each, valid teeth and commands); reviewer sign-off noted | 2–3 h | ⬜ |
-| B4 | **Progress on the server**: `GET/POST /api/progress` (XP, streak, misses per tooth) stored per `studentId` in `store.js`; Learn reads it, falling back to localStorage | `server/app.js`, `server/store.js`, `src/features/learn/progress.js` | Progress survives a new browser with the same student id; tests added | 1–2 h | ⬜ |
-| B5 | **Teacher view** `/teach`: list stations (built-in and AI-made), unpublish or delete AI-made ones, see attempts per station (count, average score, hardest question) | new `src/features/teach/`, routes in `server/app.js` | A teacher can create a station and see the class results | 2–3 h | ⬜ |
-| B6 | Optional: **stream the patient's reply** token by token (SSE + `client.messages.stream`) | `server/ai.js`, `server/app.js`, `AssessmentPage.jsx` | First words appear in under a second | 1–2 h | ⬜ |
-| B-S1 | Stretch: **live classroom** (Socket.IO): a teacher's camera and SceneCommands mirrored to students | new | 2 browsers stay in sync | 3+ h | ⬜ |
+| ID | Task | Done when | Est. | Status |
+|---|---|---|---|---|
+| U1 ★ | **Check the age timeline in a real browser** (headless screenshots can't draw it). Open `/explore?age=7`, then `&layer=xray`; press Play from 0 to 25. Tune baby-tooth positions, eruption depth and jaw growth in `ageModel.js`, and fix anything that pokes through (the known risks are listed in `ageModel.js` and the age-model PR notes). Check the frame rate during Play | Ages 3, 7, 10, 15 and 25 look believable; Play stays smooth; screenshots in the PR | 2–3 h | ⬜ |
+| U2 ★ | **Patient home `/patient`**: a calm, plain-language entry for patients and parents. "My child's teeth": enter an age, and the 3D mouth shows that age with "what to expect next" (from `DENTITION_MILESTONES` and `dentitionAtAge`), plus cards for each Explain treatment. Add it to the nav and the home page | A parent can see their 6-year-old's mouth and what comes next in under 30 seconds | 2–3 h | ⬜ |
+| U3 | **Explain with a real key**: test all 5 treatments in all 7 languages (Urdu and Arabic are right-to-left); improve the narration prompt in `server/explain.js`; add one more treatment (scale and polish, or a children's fissure sealant) | Narration reads naturally; the PR lists any issues by language | 1–2 h | ⬜ |
+| U4 ★ | **Teacher view `/teach`**: write a station with AI (reuse `CreateCaseDialog`), list built-in and AI-made stations, unpublish or delete AI-made ones, and see class results per station (number of attempts, average score, hardest question) from `GET /api/teach/stats` (new `server/teach.js`) | A teacher creates a station, students play it, and the teacher sees the results | 3 h | ⬜ |
+| U5 | **Mobile pass** at 375 px across all pages (assessment: 3D on top with the composer always visible; explain player; quizzes; nav menu) | Usable one-handed; screenshots in the PR | 1–2 h | ⬜ |
+| U6 | **Cmd/Ctrl-K palette and shortcuts**: jump to pages, teeth ("36") and ages; `1`–`5` layers, `Space` play/spin, `[` and `]` age, `?` help | Works everywhere there is a 3D view; ignored while typing | 1–2 h | ⬜ |
+| U-S1 | Stretch: **live classroom** (Socket.IO): students follow the teacher's 3D camera and SceneCommands | 2 browsers stay in sync | 3+ h | ⬜ |
 
-## Both: demo checklist (last)
+## Lead (Arfin6900)
 
 | ID | Task | Status |
 |---|---|---|
-| D1 | Full run-through on the deployed URL: Home → assessment (Sara, practice) → report → tutor → age timeline → explain in Urdu, under 3 minutes | ⬜ |
+| L1 ★ | Create an Anthropic API key; share it privately with both developers (never commit it) | ⬜ |
+| L2 ★ | Deploy on Render with `render.yaml` (`ANTHROPIC_API_KEY` as a secret; optional MongoDB Atlas `MONGO_URI`); share the URL | ⬜ |
+| L3 | Get a dental student or teacher to review all stations (H2 adds 4) | ⬜ |
+| L4 | Fix lint: `eslint.config.js` ignores `src`; make `npm run lint` pass (or hand it to whoever finishes first) | ⬜ |
+
+## Everyone: demo checklist (last)
+
+| ID | Task | Status |
+|---|---|---|
+| D1 | Full run-through on the deployed URL in under 3 minutes: Home → assessment (Sara, practice) → report → tutor ("When do baby teeth fall out?") → age timeline → patient view → Explain in Urdu | ⬜ |
 | D2 | Backup screen recording of D1 | ⬜ |
 | D3 | 5 pitch slides: problem, live demo, how it works (3D from maths, AI that moves the model, assessment engine with fallbacks), impact, roadmap | ⬜ |
 | D4 | Rehearse 3 times; before going on stage, play one station so the AI cache is warm | ⬜ |
 
-## Follow-ups that need a person
+## Starting prompt for your Claude session
 
-- **API key:** someone must add `ANTHROPIC_API_KEY` locally and on Render (B1, B2). Without it the app runs on fallbacks only.
-- **Clinical review:** the 6 current stations and any new ones should be checked by a dental student or teacher before judging.
-- **Hackathon date and judging criteria:** if the demo is within a day, do A1, A3, B1, B2 and D1–D4 only.
+> Read CLAUDE.md and docs/TEAM_TASKS.md. I'm <M-Haris346 | uroojfatim>. Start task <ID>:
+> create a `feat/<topic>` branch from `develop`, follow the rules in CLAUDE.md, write tests
+> for the logic, run `npm test` and `npm run build`, then open a PR into `develop` and
+> tick the task in docs/TEAM_TASKS.md.

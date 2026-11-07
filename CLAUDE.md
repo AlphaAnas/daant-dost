@@ -5,7 +5,10 @@ examiner (OSCE-style assessment), an AI tutor that drives a 3D mouth, quizzes, a
 narrated treatment walkthroughs. Every patient is fictional. There is **no clinical/dentist
 module**; never add patient intake, triage or diagnosis of real people.
 
-Who does what next: [docs/TEAM_TASKS.md](docs/TEAM_TASKS.md). Status tracker:
+Who does what: [docs/TEAM_TASKS.md](docs/TEAM_TASKS.md). Owners by domain: **Student**
+(assessment, tutor, Learn) is M-Haris346; **Patient and Teacher** (Explain, age timeline,
+`/patient`, `/teach`) is uroojfatim. Respect the file ownership table there; shared
+contract files need both to approve. Status tracker:
 [docs/HACKATHON_PLAN.md](docs/HACKATHON_PLAN.md) section 0.
 
 ## Commands
