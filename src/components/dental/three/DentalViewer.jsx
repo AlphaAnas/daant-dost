@@ -141,6 +141,7 @@ const DentalViewer = ({
               command={s.camera}
               highlights={s.highlights}
               conditions={s.conditions}
+              age={s.age}
               onView={onView}
               onFail={onFail}
             />

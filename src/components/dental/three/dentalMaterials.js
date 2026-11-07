@@ -127,14 +127,19 @@ const rim = (color, power, floor, strength, additive = false) =>
       uFloor: { value: floor },
       uStrength: { value: strength },
     },
+    // Clipping planes, when a material has some, hide the unformed part of
+    // a growing tooth (see the age timeline).
+    clipping: true,
     vertexShader: `
+#include <clipping_planes_pars_vertex>
 varying vec3 vNormalView;
 varying vec3 vToCamera;
 void main() {
-  vec4 mv = modelViewMatrix * vec4(position, 1.0);
+  vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
   vNormalView = normalize(normalMatrix * normal);
-  vToCamera = normalize(-mv.xyz);
-  gl_Position = projectionMatrix * mv;
+  vToCamera = normalize(-mvPosition.xyz);
+  gl_Position = projectionMatrix * mvPosition;
+  #include <clipping_planes_vertex>
 }`,
     fragmentShader: `
 uniform vec3 uColor;
@@ -143,7 +148,9 @@ uniform float uFloor;
 uniform float uStrength;
 varying vec3 vNormalView;
 varying vec3 vToCamera;
+#include <clipping_planes_pars_fragment>
 void main() {
+  #include <clipping_planes_fragment>
   float rim = pow(1.0 - abs(dot(normalize(vNormalView), normalize(vToCamera))), uPower);
   gl_FragColor = vec4(uColor, (uFloor + rim * uStrength));
 }`,
