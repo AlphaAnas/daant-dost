@@ -5,8 +5,9 @@ import { SceneProvider, playCommands, useSceneStore } from "../../scene/sceneSto
 import { api } from "../../lib/api";
 import CheckWizard from "./CheckWizard";
 import CheckResult from "./CheckResult";
+import { stringsFor } from "./strings";
 
-const fresh = () => ({ who: "me", age: undefined, language: "English", problem: null, story: "", answers: {} });
+const fresh = (language = "English") => ({ who: "me", age: undefined, language, problem: null, story: "", answers: {} });
 
 const Check = () => {
   const store = useSceneStore();
@@ -18,16 +19,26 @@ const Check = () => {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [round, setRound] = useState(0);
+  const [translating, setTranslating] = useState(false);
+  const t = stringsFor(state.language);
 
+  // Questions in the chosen language (the answers the rules read stay English).
   useEffect(() => {
-    api("/selfcheck").then(
+    let live = true;
+    setTranslating(state.language !== "English");
+    api(`/selfcheck?lang=${encodeURIComponent(state.language)}`).then(
       (b) => {
+        if (!live) return;
         setBank(b.problems);
         setLanguages(b.languages);
+        setTranslating(false);
       },
-      (e) => setError(e.message),
+      (e) => live && (setError(e.message), setTranslating(false)),
     );
-  }, []);
+    return () => {
+      live = false;
+    };
+  }, [state.language]);
 
   // A child's mouth: show their age, with baby teeth.
   const onWho = (who, age) => {
@@ -51,7 +62,7 @@ const Check = () => {
 
   const restart = () => {
     setResult(null);
-    setState(fresh());
+    setState((s) => fresh(s.language));
     setTeeth([]);
     setRound((n) => n + 1);
     store.getState().apply({ type: "clearHighlights" });
@@ -66,13 +77,13 @@ const Check = () => {
           mode={result ? "focus" : "select"}
           teeth={result ? [] : teeth}
           onPickTooth={(id) => setTeeth((list) => (list.includes(id) ? list.filter((t) => t !== id) : [...list, id].slice(-4)))}
-          caption={result ? "Drag to turn the mouth" : "Tap the tooth that hurts · drag to turn"}
+          caption={result ? t.dragTurn : t.tapTooth}
           className="h-[38vh] min-h-[280px] lg:h-[calc(100vh-8rem)]"
           fallback={null}
         />
         <p className="mt-3 flex items-start gap-2 text-sm text-ink-soft">
           <FiShield className="mt-0.5 shrink-0 text-brand" />
-          Information to help you decide what to do next. It isn't a diagnosis and doesn't replace seeing a dentist.
+          {t.disclaimer}
         </p>
       </div>
       <div>
@@ -80,8 +91,8 @@ const Check = () => {
         {busy && (
           <div className="flex flex-col items-center gap-4 py-24 text-center" aria-live="polite">
             <span className="h-12 w-12 animate-orbit rounded-full border-4 border-line border-t-brand" />
-            <p className="font-display text-xl font-semibold">Reading your answers…</p>
-            <p className="text-ink-soft">This takes a few seconds.</p>
+            <p className="font-display text-xl font-semibold">{t.reading}</p>
+            <p className="text-ink-soft">{t.readingHelp}</p>
           </div>
         )}
         {!busy && result && <CheckResult result={result} language={state.language} onRestart={restart} />}
@@ -96,6 +107,7 @@ const Check = () => {
             onTeeth={setTeeth}
             onSubmit={submit}
             onWho={onWho}
+            translating={translating}
           />
         )}
         {!bank && !error && <div className="h-96 animate-pulse rounded-2xl bg-bone-deep" />}

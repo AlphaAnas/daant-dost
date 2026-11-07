@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { FiAlertTriangle, FiArrowLeft, FiArrowRight, FiCheck, FiCircle, FiDroplet, FiMove, FiPlus, FiScissors, FiX, FiZap } from "react-icons/fi";
 import { CHILD_AREAS, MOUTH_AREAS, plainTooth } from "../../shared/plainTooth";
+import { HAND_WRITTEN, stringsFor } from "./strings";
 
 const ICONS = { zap: FiZap, alert: FiAlertTriangle, droplet: FiDroplet, scissors: FiScissors, circle: FiCircle, move: FiMove, plus: FiPlus };
 
@@ -26,24 +27,25 @@ const Big = ({ on, onClick, children, className = "" }) => (
   </button>
 );
 
-const Nav = ({ onBack, onNext, nextLabel = "Next", disabled }) => (
+const Nav = ({ onBack, onNext, nextLabel, disabled, t }) => (
   <div className="mt-8 flex items-center justify-between gap-3">
     {onBack ? (
       <button type="button" onClick={onBack} className="btn-quiet">
-        <FiArrowLeft /> Back
+        <FiArrowLeft /> {t.back}
       </button>
     ) : (
       <span />
     )}
     {onNext && (
       <button type="button" onClick={onNext} disabled={disabled} className="btn-primary px-6">
-        {nextLabel} <FiArrowRight />
+        {nextLabel || t.next} <FiArrowRight />
       </button>
     )}
   </div>
 );
 
-const Question = ({ q, value, onChange }) => {
+const Question = ({ q, value, onChange, t }) => {
+  const shown = (i) => q.display?.options?.[i] || q.options[i];
   if (q.type === "scale") {
     const v = value ?? 5;
     return (
@@ -52,7 +54,7 @@ const Question = ({ q, value, onChange }) => {
           <span className="font-display text-6xl font-semibold tabular-nums" style={{ color: v >= 8 ? "#C21E3A" : v >= 5 ? "#9A5B00" : "#12805C" }}>
             {v}
           </span>
-          <span className="text-ink-soft">out of {q.max}</span>
+          <span className="text-ink-soft">{t.outOf(q.max)}</span>
         </div>
         <input
           type="range"
@@ -64,8 +66,8 @@ const Question = ({ q, value, onChange }) => {
           className="mt-4 w-full cursor-pointer accent-brand"
         />
         <div className="mt-1 flex justify-between text-sm text-ink-soft">
-          <span>{q.labels[0]}</span>
-          <span>{q.labels[1]}</span>
+          <span>{q.display?.labels?.[0] || q.labels[0]}</span>
+          <span>{q.display?.labels?.[1] || q.labels[1]}</span>
         </div>
       </div>
     );
@@ -74,29 +76,29 @@ const Question = ({ q, value, onChange }) => {
     const list = [].concat(value ?? []);
     return (
       <div className="grid gap-2">
-        {q.options.map((o) => {
+        {q.options.map((o, i) => {
           const on = list.includes(o);
           return (
             <Big key={o} on={on} onClick={() => onChange(on ? list.filter((x) => x !== o) : [...list, o])}>
               <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 ${on ? "border-brand bg-brand text-white" : "border-ink-faint"}`}>
                 {on && <FiCheck size={15} strokeWidth={3} />}
               </span>
-              <span className="text-base sm:text-lg">{o}</span>
+              <span className="text-base sm:text-lg">{shown(i)}</span>
             </Big>
           );
         })}
-        <p className="text-sm text-ink-faint">Choose all that apply.</p>
+        <p className="text-sm text-ink-faint">{t.chooseAll}</p>
       </div>
     );
   }
   return (
     <div className="grid gap-2">
-      {q.options.map((o) => (
+      {q.options.map((o, i) => (
         <Big key={o} on={value === o} onClick={() => onChange(o)}>
           <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 ${value === o ? "border-brand" : "border-ink-faint"}`}>
             {value === o && <span className="h-3 w-3 rounded-full bg-brand" />}
           </span>
-          <span className="text-base sm:text-lg">{o}</span>
+          <span className="text-base sm:text-lg">{shown(i)}</span>
         </Big>
       ))}
     </div>
@@ -105,7 +107,8 @@ const Question = ({ q, value, onChange }) => {
 
 // The self-check, one simple step at a time. `teeth` and `onTeeth` are shared
 // with the 3D mouth so tapping a tooth there marks where it hurts.
-const CheckWizard = ({ bank, languages, state, setState, teeth, onTeeth, onSubmit, onWho }) => {
+const CheckWizard = ({ bank, languages, state, setState, teeth, onTeeth, onSubmit, onWho, translating }) => {
+  const t = stringsFor(state.language);
   const [step, setStep] = useState("who");
   const [qi, setQi] = useState(0);
   const problem = bank.find((p) => p.id === state.problem);
@@ -122,7 +125,7 @@ const CheckWizard = ({ bank, languages, state, setState, teeth, onTeeth, onSubmi
     <div>
       <div className="mb-6">
         <div className="flex justify-between text-xs font-bold text-ink-faint">
-          <span>Your self-check</span>
+          <span>{t.yourCheck}</span>
           <span>{Math.round((done / total) * 100)}%</span>
         </div>
         <span className="mt-1.5 block h-1.5 overflow-hidden rounded-full bg-line">
@@ -131,18 +134,44 @@ const CheckWizard = ({ bank, languages, state, setState, teeth, onTeeth, onSubmi
       </div>
 
       {step === "who" && (
-        <Step eyebrow="Step 1" title="Who is this check for?" help="No sign-up. Your answers stay on this device and are only used to give you advice.">
+        <Step eyebrow={t.step(1)} title={t.whoTitle} help={t.whoHelp}>
+          <div className="mb-6 flex flex-wrap items-center gap-2" role="radiogroup" aria-label={t.language}>
+            <span className="mr-1 font-bold">{t.language}</span>
+            {HAND_WRITTEN.map((l) => (
+              <button
+                key={l}
+                type="button"
+                role="radio"
+                aria-checked={state.language === l}
+                onClick={() => set({ language: l })}
+                className={`rounded-full border-2 px-4 py-1.5 font-bold transition-colors ${state.language === l ? "border-brand bg-brand text-white" : "border-line bg-white hover:border-brand/50"}`}
+              >
+                {l}
+              </button>
+            ))}
+            <select
+              value={HAND_WRITTEN.includes(state.language) ? "" : state.language}
+              onChange={(e) => e.target.value && set({ language: e.target.value })}
+              aria-label="Other languages"
+              className="field w-auto py-1.5"
+            >
+              <option value="">Other…</option>
+              {languages.filter((l) => !HAND_WRITTEN.includes(l)).map((l) => (
+                <option key={l}>{l}</option>
+              ))}
+            </select>
+          </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <Big on={state.who === "me"} onClick={() => set({ who: "me" })}>
-              Me
+              {t.me}
             </Big>
             <Big on={state.who === "child"} onClick={() => set({ who: "child" })}>
-              My child
+              {t.child}
             </Big>
           </div>
           {state.who === "child" && (
             <label className="mt-4 flex items-center gap-3 font-bold">
-              Their age
+              {t.childAge}
               <input
                 type="number"
                 min={0}
@@ -150,24 +179,17 @@ const CheckWizard = ({ bank, languages, state, setState, teeth, onTeeth, onSubmi
                 value={state.age ?? ""}
                 onChange={(e) => set({ age: e.target.value === "" ? undefined : Math.max(0, Math.min(17, Number(e.target.value))) })}
                 className="field w-24 py-2"
-                placeholder="Years"
+                placeholder={t.years}
               />
             </label>
           )}
-          <label className="mt-6 flex flex-wrap items-center gap-3 font-bold">
-            Explain the results in
-            <select value={state.language} onChange={(e) => set({ language: e.target.value })} className="field w-auto py-2">
-              {languages.map((l) => (
-                <option key={l}>{l}</option>
-              ))}
-            </select>
-          </label>
-          <Nav onNext={() => setStep("what")} disabled={!state.who || (state.who === "child" && state.age === undefined)} />
+          {translating && <p className="mt-4 text-sm font-bold text-brand">{t.translating}</p>}
+          <Nav t={t} onNext={() => setStep("what")} disabled={!state.who || (state.who === "child" && state.age === undefined)} />
         </Step>
       )}
 
       {step === "what" && (
-        <Step eyebrow="Step 2" title="What's the problem?" help="Pick the one that fits best. You don't need to know any dental words.">
+        <Step eyebrow={t.step(2)} title={t.whatTitle} help={t.whatHelp}>
           <div className="grid gap-2 sm:grid-cols-2">
             {bank.map((p) => {
               const Icon = ICONS[p.icon] || FiZap;
@@ -189,19 +211,19 @@ const CheckWizard = ({ bank, languages, state, setState, teeth, onTeeth, onSubmi
                     <Icon />
                   </span>
                   <span>
-                    <span className="block font-bold">{p.label}</span>
-                    <span className="text-sm text-ink-soft">{p.hint}</span>
+                    <span className="block font-bold">{p.display?.label || p.label}</span>
+                    <span className="text-sm text-ink-soft">{p.display?.hint || p.hint}</span>
                   </span>
                 </button>
               );
             })}
           </div>
-          <Nav onBack={() => setStep("who")} onNext={() => setStep("where")} disabled={!state.problem} />
+          <Nav t={t} onBack={() => setStep("who")} onNext={() => setStep("where")} disabled={!state.problem} />
         </Step>
       )}
 
       {step === "where" && (
-        <Step eyebrow="Step 3" title="Where is it?" help="Tap the tooth on the 3D mouth, or pick an area below. Left and right mean your left and right.">
+        <Step eyebrow={t.step(3)} title={t.whereTitle} help={t.whereHelp}>
           {teeth.length > 0 && (
             <div className="mb-4 flex flex-wrap gap-2">
               {teeth.map((id) => (
@@ -219,20 +241,20 @@ const CheckWizard = ({ bank, languages, state, setState, teeth, onTeeth, onSubmi
               const on = a.teeth.every((t) => teeth.includes(t));
               return (
                 <Big key={a.id} on={on} onClick={() => onTeeth(on ? teeth.filter((t) => !a.teeth.includes(t)) : [...new Set([...teeth, ...a.teeth])].slice(-4))}>
-                  <span className="text-base">{a.label}</span>
+                  <span className="text-base">{t.areas[a.id] || a.label}</span>
                 </Big>
               );
             })}
             <Big on={false} onClick={() => { onTeeth([]); setStep("story"); }}>
-              <span className="text-base text-ink-soft">I'm not sure / the whole mouth</span>
+              <span className="text-base text-ink-soft">{t.notSure}</span>
             </Big>
           </div>
-          <Nav onBack={() => setStep("what")} onNext={() => setStep("story")} nextLabel={teeth.length ? "Next" : "Skip"} />
+          <Nav t={t} onBack={() => setStep("what")} onNext={() => setStep("story")} nextLabel={teeth.length ? t.next : t.skip} />
         </Step>
       )}
 
       {step === "story" && (
-        <Step eyebrow="Step 4" title="Tell us in your own words" help="Optional, but it helps. For example: “It started 3 days ago after eating ice cream and now it throbs.”">
+        <Step eyebrow={t.step(4)} title={t.storyTitle} help={t.storyHelp}>
           <label htmlFor="story" className="sr-only">Describe the problem</label>
           <textarea
             id="story"
@@ -240,17 +262,18 @@ const CheckWizard = ({ bank, languages, state, setState, teeth, onTeeth, onSubmi
             maxLength={1500}
             value={state.story}
             onChange={(e) => set({ story: e.target.value })}
-            placeholder="What's happening, since when, what makes it better or worse…"
+            placeholder={t.storyPlaceholder}
             className="field resize-y text-lg"
           />
-          <Nav onBack={() => setStep("where")} onNext={() => setStep("q")} nextLabel={state.story.trim() ? "Next" : "Skip"} />
+          <Nav t={t} onBack={() => setStep("where")} onNext={() => setStep("q")} nextLabel={state.story.trim() ? t.next : t.skip} />
         </Step>
       )}
 
       {step === "q" && problem && (
-        <Step key={problem.questions[qi].id} eyebrow={`Question ${qi + 1} of ${problem.questions.length}`} title={problem.questions[qi].text}>
-          <Question q={problem.questions[qi]} value={state.answers[problem.questions[qi].id]} onChange={(v) => answer(problem.questions[qi].id, v)} />
+        <Step key={problem.questions[qi].id} eyebrow={t.question(qi + 1, problem.questions.length)} title={problem.questions[qi].display?.text || problem.questions[qi].text}>
+          <Question t={t} q={problem.questions[qi]} value={state.answers[problem.questions[qi].id]} onChange={(v) => answer(problem.questions[qi].id, v)} />
           <Nav
+            t={t}
             onBack={() => (qi === 0 ? setStep("story") : setQi(qi - 1))}
             onNext={() => {
               const q = problem.questions[qi];
@@ -258,7 +281,7 @@ const CheckWizard = ({ bank, languages, state, setState, teeth, onTeeth, onSubmi
               if (qi + 1 < problem.questions.length) setQi(qi + 1);
               else onSubmit();
             }}
-            nextLabel={qi + 1 < problem.questions.length ? (state.answers[problem.questions[qi].id] === undefined && problem.questions[qi].type !== "scale" ? "Skip" : "Next") : "See my results"}
+            nextLabel={qi + 1 < problem.questions.length ? (state.answers[problem.questions[qi].id] === undefined && problem.questions[qi].type !== "scale" ? t.skip : t.next) : t.results}
           />
         </Step>
       )}

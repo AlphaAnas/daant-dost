@@ -5,7 +5,7 @@ import DentalViewer from "../../components/dental/three/DentalViewer";
 import { SceneProvider, playCommands, useSceneStore } from "../../scene/sceneStore";
 import { api } from "../../lib/api";
 
-const VOICE_LANG = { English: "en-GB", Urdu: "ur-PK", Hindi: "hi-IN", Arabic: "ar-SA", Spanish: "es-ES", French: "fr-FR", Chinese: "zh-CN" };
+const VOICE_LANG = { English: "en-GB", "Roman Urdu": "en-IN", Urdu: "ur-PK", Hindi: "hi-IN", Arabic: "ar-SA", Spanish: "es-ES", French: "fr-FR", Chinese: "zh-CN" };
 const RTL = new Set(["Urdu", "Arabic"]);
 const BLURB = {
   filling: "Decay removed, tooth sealed.",

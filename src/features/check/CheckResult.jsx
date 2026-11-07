@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { FiAlertOctagon, FiAlertTriangle, FiCalendar, FiCheckCircle, FiClock, FiCopy, FiCornerDownLeft, FiHelpCircle, FiPlayCircle, FiPrinter, FiRefreshCw, FiStar } from "react-icons/fi";
 import { api } from "../../lib/api";
 import Reveal from "../assess/Reveal";
+import { stringsFor } from "./strings";
 
 const LEVEL = {
   emergency: { icon: FiAlertOctagon, box: "bg-[#C21E3A] text-white", sub: "text-white/90" },
@@ -23,6 +24,7 @@ const Card = ({ title, icon: Icon, children, className = "" }) => (
 );
 
 const FollowUp = ({ result, language }) => {
+  const t = stringsFor(language);
   const [q, setQ] = useState("");
   const [items, setItems] = useState([]);
   const [busy, setBusy] = useState(false);
@@ -44,7 +46,7 @@ const FollowUp = ({ result, language }) => {
     }
   };
   return (
-    <Card title="Ask anything about this" icon={FiHelpCircle}>
+    <Card title={t.askAnything} icon={FiHelpCircle}>
       {items.map((it, i) => (
         <div key={i} className="mb-3">
           <p className="font-bold">{it.question}</p>
@@ -55,7 +57,7 @@ const FollowUp = ({ result, language }) => {
       ))}
       {!items.length && (
         <div className="mb-3 flex flex-wrap gap-1.5">
-          {["Will it hurt to fix?", "Can I wait until the weekend?", "What will the dentist do?", "How much does it usually cost?"].map((s) => (
+          {t.suggestions.map((s) => (
             <button key={s} type="button" onClick={() => ask(s)} className="rounded-lg bg-bone px-2.5 py-1.5 text-sm text-ink-soft hover:text-ink">
               {s}
             </button>
@@ -70,7 +72,7 @@ const FollowUp = ({ result, language }) => {
         className="flex items-center gap-2 rounded-xl border border-line p-1.5 focus-within:border-brand"
       >
         <label htmlFor="followup" className="sr-only">Your question</label>
-        <input id="followup" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Type a question in your own words…" className="min-w-0 flex-1 bg-transparent px-2.5 py-2 focus:outline-none" />
+        <input id="followup" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t.askPlaceholder} className="min-w-0 flex-1 bg-transparent px-2.5 py-2 focus:outline-none" />
         <button type="submit" disabled={!q.trim() || busy} className="btn-primary px-3 py-2" aria-label="Ask">
           {busy ? <span className="h-4 w-4 animate-orbit rounded-full border-2 border-white/40 border-t-white" /> : <FiCornerDownLeft />}
         </button>
@@ -80,6 +82,7 @@ const FollowUp = ({ result, language }) => {
 };
 
 const CheckResult = ({ result, language, onRestart }) => {
+  const t = stringsFor(language);
   const L = LEVEL[result.urgency.level];
   const [copied, setCopied] = useState(false);
   const copy = async () => {
@@ -98,7 +101,7 @@ const CheckResult = ({ result, language, onRestart }) => {
         <div className="flex items-start gap-4">
           <L.icon className="mt-1 shrink-0" size={30} />
           <div>
-            <p className="text-sm font-bold uppercase tracking-wider opacity-80">How urgent</p>
+            <p className="text-sm font-bold uppercase tracking-wider opacity-80">{t.howUrgent}</p>
             <h2 className="font-display text-2xl font-semibold sm:text-3xl">{result.urgency.title}</h2>
             <p className={`mt-2 text-lg ${L.sub}`}>{result.urgency.action}</p>
             {result.redFlags.length > 0 && (
@@ -115,7 +118,7 @@ const CheckResult = ({ result, language, onRestart }) => {
       </section>
 
       {result.immediate && (
-        <Card title="Do this right now" icon={FiAlertTriangle} className="border-2 border-[#FF7A2F]">
+        <Card title={t.doNow} icon={FiAlertTriangle} className="border-2 border-[#FF7A2F]">
           <ol className="grid gap-2">
             {result.immediate.map((s, i) => (
               <li key={s} className="flex gap-3 text-lg">
@@ -134,39 +137,39 @@ const CheckResult = ({ result, language, onRestart }) => {
         <p className="mt-3 text-ink-soft">{result.reassurance}</p>
         {result.teeth.length > 0 && (
           <p className="mt-3 text-sm text-ink-soft">
-            Shown on the 3D mouth: <span className="font-bold text-ink">{result.teeth.map((t) => t.plain).join("; ")}</span>
+            {t.shownOn} <span className="font-bold text-ink">{result.teeth.map((t) => t.plain).join("; ")}</span>
           </p>
         )}
       </Card>
 
-      <Card title="What it could be" icon={FiHelpCircle}>
+      <Card title={t.couldBe} icon={FiHelpCircle}>
         <ul className="grid gap-3">
           {result.causes.map((c) => (
             <li key={c.id} className="rounded-xl border border-line p-4">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="font-display text-lg font-semibold">{c.name}</span>
-                <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${LIKELY[c.likelihood] || LIKELY.possible}`}>{c.likelihood}</span>
+                <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${LIKELY[c.likelihood] || LIKELY.possible}`}>{t.likely[c.likelihood] || c.likelihood}</span>
               </div>
               {c.note && <p className="mt-2 font-bold text-ink">{c.note}</p>}
               <p className="mt-1.5 leading-relaxed text-ink-soft">{c.explain}</p>
               <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
                 <span className="text-ink-faint">
-                  Your dentist may call it: <span className="font-bold text-ink-soft">{c.term}</span>
+                  {t.dentistCalls} <span className="font-bold text-ink-soft">{c.term}</span>
                 </span>
                 {c.treatment && (
                   <Link to={`/explain?t=${c.treatment}&lang=${encodeURIComponent(language)}`} className="inline-flex items-center gap-1 font-bold text-brand hover:underline">
-                    <FiPlayCircle /> See how it's treated in 3D
+                    <FiPlayCircle /> {t.seeTreated}
                   </Link>
                 )}
               </div>
             </li>
           ))}
         </ul>
-        <p className="mt-3 text-sm text-ink-faint">This is general information to help you, not a diagnosis. Only a dentist who examines you can say for sure.</p>
+        <p className="mt-3 text-sm text-ink-faint">{t.notDiagnosis}</p>
       </Card>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Card title="What you can do now" icon={FiCheckCircle}>
+        <Card title={t.canDo} icon={FiCheckCircle}>
           <ul className="grid gap-2">
             {result.selfCare.map((s) => (
               <li key={s} className="flex gap-2.5">
@@ -175,7 +178,7 @@ const CheckResult = ({ result, language, onRestart }) => {
             ))}
           </ul>
         </Card>
-        <Card title="Get help straight away if" icon={FiAlertOctagon}>
+        <Card title={t.getHelp} icon={FiAlertOctagon}>
           <ul className="grid gap-2">
             {result.getHelpIf.map((s) => (
               <li key={s} className="flex gap-2.5">
@@ -186,7 +189,7 @@ const CheckResult = ({ result, language, onRestart }) => {
         </Card>
       </div>
 
-      <Card title="Questions to ask your dentist" icon={FiHelpCircle}>
+      <Card title={t.askDentist} icon={FiHelpCircle}>
         <ul className="grid gap-2">
           {result.askDentist.map((q) => (
             <li key={q} className="rounded-xl bg-bone px-4 py-2.5">
@@ -195,12 +198,12 @@ const CheckResult = ({ result, language, onRestart }) => {
           ))}
         </ul>
         <button type="button" onClick={copy} className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-brand hover:underline">
-          <FiCopy /> {copied ? "Copied" : "Copy these questions"}
+          <FiCopy /> {copied ? t.copied : t.copy}
         </button>
       </Card>
 
       {result.words.length > 0 && (
-        <Card title="Words you might hear" icon={FiStar}>
+        <Card title={t.words} icon={FiStar}>
           <dl className="grid gap-2 sm:grid-cols-2">
             {result.words.map((w) => (
               <div key={w.word} className="rounded-xl border border-line px-4 py-3">
@@ -216,13 +219,13 @@ const CheckResult = ({ result, language, onRestart }) => {
 
       <div className="flex flex-wrap gap-3 print:hidden">
         <button type="button" className="btn-primary" onClick={onRestart}>
-          <FiRefreshCw /> Start a new check
+          <FiRefreshCw /> {t.restart}
         </button>
         <button type="button" className="btn-quiet" onClick={() => window.print()}>
-          <FiPrinter /> Print or save for your dentist
+          <FiPrinter /> {t.print}
         </button>
       </div>
-      {result.ai && <p className="text-xs text-ink-faint">Explanation written by AI from your answers. Urgency is decided by fixed safety rules.</p>}
+      {result.ai && <p className="text-xs text-ink-faint">{t.aiNote}</p>}
     </div>
   );
 };

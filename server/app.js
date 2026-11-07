@@ -4,7 +4,8 @@ import { aiEnabled, MODEL } from "./ai.js";
 import { coachReport, gradeText, patientReply } from "./assessor.js";
 import { CASES, caseById } from "./cases.js";
 import { TUTOR_SUGGESTIONS, tutorPlan } from "./tutor.js";
-import { LANGUAGES, TREATMENTS, explainPlan } from "./explain.js";
+import { TREATMENTS, explainPlan } from "./explain.js";
+import { LANGUAGES } from "./i18n.js";
 import { generateCase } from "./caseAuthor.js";
 import { rateLimit } from "./rateLimit.js";
 import { publicBank, selfCheckAnswer, selfCheckResult } from "./selfcheck/selfCheck.js";
@@ -200,7 +201,13 @@ export const createApp = ({ store, limits = {} }) => {
   );
 
   // The patient self-check: questions, then a plain-language result.
-  api.get("/selfcheck", (req, res) => res.json({ problems: publicBank(), languages: LANGUAGES }));
+  api.get(
+    "/selfcheck",
+    wrap(async (req, res) => {
+      const language = LANGUAGES.includes(req.query.lang) ? req.query.lang : "English";
+      res.json({ problems: await publicBank(language), languages: LANGUAGES, language });
+    }),
+  );
 
   api.post(
     "/selfcheck/result",
