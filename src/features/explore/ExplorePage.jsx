@@ -1,4 +1,6 @@
+import { useState } from "react";
 import DentalViewer from "../../components/dental/three/DentalViewer";
+import TutorPanel from "./TutorPanel";
 import Odontogram from "../../components/dental/Odontogram";
 import ToothPanel from "../../components/dental/ToothPanel";
 import ToothPicker from "../../components/dental/ToothPicker";
@@ -43,8 +45,16 @@ const StudyNotes = ({ group }) => {
   );
 };
 
+const Narration = ({ text }) =>
+  text ? (
+    <p key={text} className="pointer-events-none mx-auto max-w-xl animate-rise-in rounded-xl bg-stage/85 px-4 py-3 text-center text-sm font-bold leading-relaxed text-white shadow-xl ring-1 ring-white/10 backdrop-blur">
+      {text}
+    </p>
+  ) : null;
+
 const ExplorePage = () => {
   const site = useToothSelection();
+  const [narration, setNarration] = useState(null);
   const group = site.primary && site.primary !== "multiple" ? dentalRegionGroup(site.primary, site.teeth) : null;
   const summary =
     site.teeth.length === 1
@@ -67,13 +77,16 @@ const ExplorePage = () => {
             summary={summary}
             className="h-[min(74vh,680px)] min-h-[420px]"
             fallback={<p className="rounded-2xl border border-dashed border-ink-faint p-5 text-ink-soft">The 3D mouth needs WebGL. Use the tooth chart instead.</p>}
-          />
+          >
+            <Narration text={narration} />
+          </DentalViewer>
         </div>
         <div className="flex flex-col gap-4">
           <div>
             <h1 className="font-display text-3xl font-semibold">Explore the mouth</h1>
-            <p className="mt-2 text-ink-soft">Click any tooth or site. Peel back layers, open the jaw, chart findings and cut a tooth in half.</p>
+            <p className="mt-2 text-ink-soft">Click any tooth or site, or ask the AI tutor and watch it show you on the 3D mouth.</p>
           </div>
+          <TutorPanel selected={site.teeth} onNarrate={setNarration} />
           <Odontogram teeth={site.teeth} chart={site.chart} active={site.active} onPick={site.pickTooth} />
           <ToothPicker selected={site.teeth} multi={site.multi} onPick={site.pickTooth} />
           {site.active && (

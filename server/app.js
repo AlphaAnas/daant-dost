@@ -3,6 +3,7 @@ import express from "express";
 import { aiEnabled, MODEL } from "./ai.js";
 import { coachReport, gradeText, patientReply } from "./assessor.js";
 import { CASES, caseById } from "./cases.js";
+import { TUTOR_SUGGESTIONS, tutorPlan } from "./tutor.js";
 import {
   MAX_HISTORY_QUESTIONS,
   answerItem,
@@ -139,6 +140,23 @@ export const createApp = ({ store }) => {
         await store.save(attempt);
       }
       res.json(viewOf(attempt, card));
+    }),
+  );
+
+  api.get("/tutor/suggestions", (req, res) => res.json(TUTOR_SUGGESTIONS));
+
+  api.post(
+    "/tutor",
+    wrap(async (req, res) => {
+      const question = String(req.body?.question || "").trim().slice(0, 500);
+      if (!question) throw new HttpError(400, "Ask the tutor a question.");
+      const context = req.body?.context || {};
+      res.json(
+        await tutorPlan(question, {
+          teeth: [].concat(context.teeth || []).map(String).slice(0, 8),
+          layer: String(context.layer || ""),
+        }),
+      );
     }),
   );
 

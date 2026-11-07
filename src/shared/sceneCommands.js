@@ -1,5 +1,5 @@
-import { TEETH } from "../data/teeth";
-import { DENTAL_REGIONS, TOOTH_CONDITIONS } from "../data/dental";
+import { TEETH } from "../data/teeth.js";
+import { DENTAL_REGIONS, TOOTH_CONDITIONS } from "../data/dental.js";
 
 // Everything that moves the 3D mouth is one of these commands: buttons,
 // keyboard, the AI tutor and examiner, and treatment walkthroughs. The server

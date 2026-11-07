@@ -1,4 +1,4 @@
-import { regionOfTooth, surfaceLetter, toothById } from "./teeth";
+import { regionOfTooth, surfaceLetter, toothById } from "./teeth.js";
 
 // Oral sites offered on the 3D mouth and in the site list.
 export const DENTAL_REGIONS = [

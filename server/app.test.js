@@ -61,3 +61,21 @@ describe("assessment API", () => {
     expect((await request(app).post(`/api/assessments/${start.body.id}/ask`).send({ question: "" })).status).toBe(400);
   });
 });
+
+describe("tutor API", () => {
+  test("answers with steps whose commands are all valid", async () => {
+    const res = await request(app).post("/api/tutor").send({ question: "Why does the lower molar have two roots?" });
+    expect(res.status).toBe(200);
+    expect(res.body.steps.length).toBeGreaterThan(1);
+    expect(res.body.steps[0].commands).toContainEqual({ type: "focusTeeth", teeth: ["36"] });
+  });
+
+  test("falls back to the selected tooth", async () => {
+    const res = await request(app).post("/api/tutor").send({ question: "tell me about this one", context: { teeth: ["14"] } });
+    expect(res.body.steps[0].say).toMatch(/14/);
+  });
+
+  test("needs a question", async () => {
+    expect((await request(app).post("/api/tutor").send({})).status).toBe(400);
+  });
+});

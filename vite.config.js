@@ -5,9 +5,11 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: { "/api": "http://localhost:3001" },
+    watch: { ignored: ["**/.claude/**", "**/server/data/**"] },
   },
   test: {
     environment: "jsdom",
     setupFiles: "src/test/setup.js",
+    exclude: ["**/node_modules/**", "**/dist/**", "**/.claude/**"],
   },
 });
