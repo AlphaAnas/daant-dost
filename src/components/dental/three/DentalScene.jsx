@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Billboard, Environment, Html, Lightformer, OrbitControls } from "@react-three/drei";
-import { AdditiveBlending, Vector3 } from "three";
+import { AdditiveBlending, DoubleSide, Plane, Vector3 } from "three";
 import CameraRig from "../../anatomy/CameraRig";
 import { conditionById, dentalRegionById } from "../../../data/dental";
 import { toothById, surfaceName } from "../../../data/teeth";
 import { loadDentition } from "./loadDentition";
+import { dentitionAtAge } from "../../../shared/chronology";
+import { agedTooth, growthPivot, grownPoint, jawGrowth, primaryTeeth } from "./ageModel";
 import {
   JAW_ANGLE,
   REGION_VIEWS,
@@ -150,6 +152,62 @@ const Hinge = ({ hinge, open, children }) => {
   );
 };
 
+// The gums, bone and tongue of a growing jaw, scaled about `pivot`.
+const Grow = ({ growth, pivot, children }) => {
+  const back = useMemo(() => pivot.clone().negate(), [pivot]);
+  if (!growth) return children;
+  return (
+    <group position={pivot} scale={growth}>
+      <group position={back}>{children}</group>
+    </group>
+  );
+};
+
+// A copy of a tooth material that hides what lies below `plane`.
+const withClipping = (material, plane) => {
+  const m = material.clone();
+  m.onBeforeCompile = material.onBeforeCompile;
+  m.customProgramCacheKey = material.customProgramCacheKey;
+  if (material.uniforms) m.uniforms = material.uniforms; // keep the shared tint
+  m.clippingPlanes = [plane];
+  m.side = DoubleSide; // a cut tooth shows its inside rather than a hole
+  return m;
+};
+
+const TOOTH_UP = new Vector3(0, 1, 0);
+
+// A tooth of the mouth at an age: only its formed part shows (a clipping
+// plane in its own frame, at `tooth.clipY`), and a baby tooth being shed
+// fades with `tooth.opacity`.
+const AgedTooth = ({ tooth, geometry, material, pulpGeometry, pulpMaterial }) => {
+  const mesh = useRef();
+  const plane = useMemo(() => new Plane(), []);
+  const own = useMemo(() => withClipping(material, plane), [material, plane]);
+  const ownPulp = useMemo(() => pulpMaterial && withClipping(pulpMaterial, plane), [pulpMaterial, plane]);
+  useEffect(() => () => own.dispose(), [own]);
+  useEffect(() => () => ownPulp?.dispose(), [ownPulp]);
+  useEffect(() => {
+    if (own.isShaderMaterial) return;
+    const fade = tooth.opacity < 1;
+    if (own.transparent !== fade) {
+      own.transparent = fade;
+      own.needsUpdate = true;
+    }
+    own.opacity = tooth.opacity;
+  }, [own, tooth.opacity]);
+  useFrame(() => {
+    if (!mesh.current) return;
+    // Clipping planes live in the world, so follow the tooth as it moves.
+    plane.set(TOOTH_UP, -Math.max(tooth.clipY, -1000)).applyMatrix4(mesh.current.matrixWorld);
+  });
+  return (
+    <group position={tooth.position} quaternion={tooth.quaternion} scale={tooth.scale}>
+      <mesh ref={mesh} geometry={geometry} material={own} userData={{ tooth: tooth.id }} />
+      {ownPulp && <mesh geometry={pulpGeometry} material={ownPulp} renderOrder={6} raycast={() => null} />}
+    </group>
+  );
+};
+
 const LIGHT_RIG = (
   <Environment resolution={256} frames={1}>
     <Lightformer form="rect" intensity={2.6} position={[0, 7, 8]} scale={[16, 7, 1]} color="#FFF4EA" />
@@ -177,6 +235,7 @@ const Scene = ({
   command,
   highlights = {},
   conditions = [],
+  age = null,
   onView,
 }) => {
   const controls = useRef();
@@ -184,7 +243,18 @@ const Scene = ({
   const toothMaterial = useToothMaterials();
   const [hover, setHover] = useState(null);
   const { parts, hinge } = mouth;
-  const byId = useMemo(() => new Map(mouth.teeth.map((t) => [t.id, t])), [mouth]);
+  // At an age the mouth shows the teeth there are, baby ones too, each
+  // risen as far as it has erupted, in jaws that are still growing.
+  const growth = useMemo(() => (age === null ? null : jawGrowth(age)), [age]);
+  const pivot = useMemo(() => growthPivot(hinge), [hinge]);
+  const shownTeeth = useMemo(() => {
+    if (age === null) return mouth.teeth;
+    const states = new Map(dentitionAtAge(age).map((r) => [r.id, r]));
+    return [...mouth.teeth, ...primaryTeeth(mouth)]
+      .map((t) => agedTooth(t, states.get(t.id), { age, growth, pivot }))
+      .filter(Boolean);
+  }, [mouth, age, growth, pivot]);
+  const byId = useMemo(() => new Map(shownTeeth.map((t) => [t.id, t])), [shownTeeth]);
   const picked = useMemo(() => new Set(teeth), [teeth]);
   // Charted rows, plus conditions a lesson or the AI has put on the mouth.
   const rows = useMemo(() => {
@@ -251,7 +321,7 @@ const Scene = ({
   useEffect(() => {
     const shown = teeth.map((id) => byId.get(id)).filter(Boolean);
     if (shown.length) setGoal(toothCamera(shown, hinge, angle));
-  }, [focusKey, byId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [focusKey, mouth]); // eslint-disable-line react-hooks/exhaustive-deps
   const regionKey = regions.join(" ");
   useEffect(() => {
     if (teeth.length || regions.length !== 1) return;
@@ -323,6 +393,18 @@ const Scene = ({
           accent: tint,
           size: tooth.size,
         });
+    if (tooth.clipY !== undefined) {
+      return (
+        <AgedTooth
+          key={tooth.id}
+          tooth={tooth}
+          geometry={parts[`${tooth.type}_outer`]}
+          material={material}
+          pulpGeometry={parts[`${tooth.type}_pulp`]}
+          pulpMaterial={xray ? materials.xrayPulp : null}
+        />
+      );
+    }
     return (
       <group key={tooth.id} position={tooth.position} quaternion={tooth.quaternion} scale={tooth.scale}>
         <mesh geometry={parts[`${tooth.type}_outer`]} material={material} userData={{ tooth: tooth.id }} />
@@ -349,6 +431,7 @@ const Scene = ({
   };
 
   const tagged = [...new Set([...picked, ...Object.keys(highlights)])];
+  const tmj = (x) => (growth ? grownPoint([x, hinge.y, hinge.z], growth, pivot) : [x, hinge.y, hinge.z]);
   const lowerTags = tagged.filter((id) => byId.get(id)?.jaw === "lower");
   const upperTags = tagged.filter((id) => byId.get(id)?.jaw === "upper");
 
@@ -364,25 +447,27 @@ const Scene = ({
       <group onPointerMove={onMove} onPointerOut={() => setHover(null)} onClick={onClick}>
         {arches !== "lower" && (
           <group>
-            {(showBone || glass || xray) && (
-              <Part
-                geometry={parts.maxilla}
-                name="maxilla"
-                enabled={layer === "bone"}
-                material={boneMaterial(["maxilla"])}
-                renderOrder={glass || xray ? 3 : undefined}
-              />
-            )}
-            {(showGum || glass || xray) && (
-              <Part
-                geometry={parts.gum_upper}
-                name="gum_upper"
-                enabled={showGum}
-                material={gumMaterial("gum_upper", ["gingiva_upper", "palate"])}
-                renderOrder={glass || xray ? 4 : undefined}
-              />
-            )}
-            {mouth.teeth.filter((t) => t.jaw === "upper").map(renderTooth)}
+            <Grow growth={growth} pivot={pivot}>
+              {(showBone || glass || xray) && (
+                <Part
+                  geometry={parts.maxilla}
+                  name="maxilla"
+                  enabled={layer === "bone"}
+                  material={boneMaterial(["maxilla"])}
+                  renderOrder={glass || xray ? 3 : undefined}
+                />
+              )}
+              {(showGum || glass || xray) && (
+                <Part
+                  geometry={parts.gum_upper}
+                  name="gum_upper"
+                  enabled={showGum}
+                  material={gumMaterial("gum_upper", ["gingiva_upper", "palate"])}
+                  renderOrder={glass || xray ? 4 : undefined}
+                />
+              )}
+            </Grow>
+            {shownTeeth.filter((t) => t.jaw === "upper").map(renderTooth)}
             {upperTags.map((id) => (
               <Tag key={id} at={tagAt(id)} picked color={highlights[id] || color}>
                 {tagOf(id)}
@@ -392,32 +477,34 @@ const Scene = ({
         )}
         {arches !== "upper" && (
           <Hinge hinge={hinge} open={open}>
-            {(showBone || glass || xray) && (
-              <Part
-                geometry={parts.mandible}
-                name="mandible"
-                enabled={layer === "bone"}
-                material={boneMaterial(["mandible", "tmj_right", "tmj_left"])}
-                renderOrder={glass || xray ? 3 : undefined}
-              />
-            )}
-            {(showGum || glass || xray) && (
-              <Part
-                geometry={parts.gum_lower}
-                name="gum_lower"
-                enabled={showGum}
-                material={gumMaterial("gum_lower", ["gingiva_lower", "floor_of_mouth"])}
-                renderOrder={glass || xray ? 4 : undefined}
-              />
-            )}
-            {showTongue && (
-              <Part
-                geometry={parts.tongue}
-                name="tongue"
-                material={markedRegions.has("tongue") ? materials.gumPicked : hoverRegion === "tongue" ? materials.gumHovered : materials.tongue}
-              />
-            )}
-            {mouth.teeth.filter((t) => t.jaw === "lower").map(renderTooth)}
+            <Grow growth={growth} pivot={pivot}>
+              {(showBone || glass || xray) && (
+                <Part
+                  geometry={parts.mandible}
+                  name="mandible"
+                  enabled={layer === "bone"}
+                  material={boneMaterial(["mandible", "tmj_right", "tmj_left"])}
+                  renderOrder={glass || xray ? 3 : undefined}
+                />
+              )}
+              {(showGum || glass || xray) && (
+                <Part
+                  geometry={parts.gum_lower}
+                  name="gum_lower"
+                  enabled={showGum}
+                  material={gumMaterial("gum_lower", ["gingiva_lower", "floor_of_mouth"])}
+                  renderOrder={glass || xray ? 4 : undefined}
+                />
+              )}
+              {showTongue && (
+                <Part
+                  geometry={parts.tongue}
+                  name="tongue"
+                  material={markedRegions.has("tongue") ? materials.gumPicked : hoverRegion === "tongue" ? materials.gumHovered : materials.tongue}
+                />
+              )}
+            </Grow>
+            {shownTeeth.filter((t) => t.jaw === "lower").map(renderTooth)}
             {lowerTags.map((id) => (
               <Tag key={id} at={tagAt(id)} picked color={highlights[id] || color}>
                 {tagOf(id)}
@@ -425,7 +512,7 @@ const Scene = ({
             ))}
             {(interactive || markedRegions.has("tmj_right")) && (
               <Marker
-                at={[-hinge.x, hinge.y, hinge.z]}
+                at={tmj(-hinge.x)}
                 color={color}
                 selected={markedRegions.has("tmj_right")}
                 label={dentalRegionById("tmj_right").label}
@@ -434,7 +521,7 @@ const Scene = ({
             )}
             {(interactive || markedRegions.has("tmj_left")) && (
               <Marker
-                at={[hinge.x, hinge.y, hinge.z]}
+                at={tmj(hinge.x)}
                 color={color}
                 selected={markedRegions.has("tmj_left")}
                 label={dentalRegionById("tmj_left").label}
@@ -505,6 +592,10 @@ const DentalScene = (props) => (
     dpr={[1, 2]}
     camera={{ position: VIEWS.front.position, fov: 28, near: 4, far: 1600 }}
     gl={{ antialias: true, alpha: true }}
+    onCreated={({ gl }) => {
+      // Growing teeth hide their unformed part with clipping planes.
+      gl.localClippingEnabled = true;
+    }}
   >
     <Mouth {...props} />
   </Canvas>
