@@ -33,9 +33,9 @@ const AppShell = () => {
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-40 border-b border-white/5 bg-stage/95 text-white backdrop-blur print:hidden">
         <div className="mx-auto flex h-14 w-full max-w-7xl items-center gap-4 px-4 sm:px-6">
-          <NavLink to="/" className="flex items-center gap-2.5" aria-label="ToothTwin home">
+          <NavLink to="/" className="flex items-center gap-2.5" aria-label="DaantDost home">
             <Logo className="h-8 w-8" />
-            <span className="font-display text-lg font-semibold tracking-tight">ToothTwin</span>
+            <span className="font-display text-lg font-semibold tracking-tight">DaantDost</span>
           </NavLink>
           <nav className="ml-4 hidden items-center gap-1 md:flex" aria-label="Main">
             {NAV.map((n) => (
@@ -78,7 +78,7 @@ const AppShell = () => {
         <Outlet />
       </main>
       <footer className="border-t border-line px-4 py-5 text-center text-sm text-ink-faint print:hidden">
-        ToothTwin is for education. Every patient is fictional; nothing here is a diagnosis.
+        DaantDost is for education. Every patient is fictional; nothing here is a diagnosis.
       </footer>
       <NameDialog open={naming} onClose={() => setNaming(false)} />
     </div>

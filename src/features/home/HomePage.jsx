@@ -6,7 +6,7 @@ import { SceneProvider, createSceneStore } from "../../scene/sceneStore";
 
 const heroStore = () => createSceneStore({ autoRotate: true, open: 0.35 });
 
-// Who ToothTwin is for, and what each of them does here.
+// Who DaantDost is for, and what each of them does here.
 const AUDIENCES = [
   {
     icon: FiHeart,
@@ -70,7 +70,9 @@ const HomePage = () => (
             Tooth trouble? <span className="bg-gradient-to-r from-sky to-[#7CD8FF] bg-clip-text text-transparent">Find out what to do.</span>
           </motion.h1>
           <motion.p {...rise(2)} className="mt-5 max-w-lg text-lg leading-relaxed text-white/70">
-            Show us where it hurts on a 3D mouth and answer a few simple questions. In about two minutes you'll know how urgent it is, what it could be, and what you can do right now, in plain words and in your own language.
+            Show us where it hurts on a 3D mouth and answer a few simple questions. In about two minutes
+            you&apos;ll know what to do next in plain words and your own language, while students and
+            teachers can still practise and run AI patient cases.
           </motion.p>
           <motion.div {...rise(3)} className="mt-8 flex flex-wrap gap-3">
             <Link to="/check" className="btn-primary px-6 py-3.5 text-base shadow-lg shadow-brand/30">
@@ -120,7 +122,7 @@ const HomePage = () => (
     <section className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6" aria-labelledby="who">
       <p className="text-sm font-bold uppercase tracking-wider text-brand">Who it's for</p>
       <h2 id="who" className="mt-2 font-display text-2xl font-semibold sm:text-3xl">Pick who you are to get started</h2>
-      <p className="mt-2 max-w-2xl text-ink-soft">One 3D mouth, three ways to use it. Every patient in ToothTwin is fictional, and nothing here is a diagnosis.</p>
+      <p className="mt-2 max-w-2xl text-ink-soft">One 3D mouth, three ways to use it. Every patient in DaantDost is fictional, and nothing here is a diagnosis.</p>
       <div className="mt-8 grid gap-5 lg:grid-cols-3">
         {AUDIENCES.map(({ icon: Icon, who, tagline, does, cta, to, more, tone }, i) => (
           <article

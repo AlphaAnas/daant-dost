@@ -6,14 +6,21 @@ dotenv.config({ path: ".env.local" }); // loads ELEVENLABS_API_KEY, so the key s
 
 const client = new ElevenLabsClient(); // reads ELEVENLABS_API_KEY from the environment
 
-// Urdu script, not Roman Urdu, for better pronunciation
-// Urdu script, not Roman Urdu, for better pronunciation
-const text =
-  "السلام علیکم! میں دانت دوست ہوں، آپ کا دانتوں کی دیکھ بھال کا ساتھی۔ " +
-  "براہِ مہربانی مجھے بتائیں کہ آپ کے دانت یا جبڑے میں درد کب سے ہے، " +
-  "کیا ٹھنڈا یا گرم پینے سے درد بڑھتا ہے، اور کیا آپ کے چہرے پر سوجن یا بخار بھی ہے؟ " +
-  "اگر سانس لینے یا نگلنے میں مشکل ہو تو فوراً ایمرجنسی جائیں۔ " +
-  "میں ڈاکٹر کی جگہ نہیں لیتا، بلکہ آپ کو صحیح وقت پر صحیح مدد تک پہنچانے میں مدد کرتا ہوں۔";
+// Pass generated text as command-line arguments, or pipe it through stdin.
+const text = process.argv.slice(2).join(" ").trim() || (process.stdin.isTTY
+  ? ""
+  : await new Promise((resolve, reject) => {
+      let input = "";
+      process.stdin.setEncoding("utf8");
+      process.stdin.on("data", (chunk) => (input += chunk));
+      process.stdin.on("end", () => resolve(input.trim()));
+      process.stdin.on("error", reject);
+    }));
+
+if (!text) {
+  console.error('Provide text as an argument or pipe it in, e.g. node elevenlabstts.mjs "سلام"');
+  process.exit(1);
+}
 
 const audio = await client.textToSpeech.convert("cgSgspJ2msm6clMCkdW9", {
   text,

@@ -5,7 +5,7 @@ export class ApiError extends Error {
   }
 }
 
-// JSON to and from the ToothTwin API. Errors carry a message fit to show.
+// JSON to and from the DaantDost API. Errors carry a message fit to show.
 export const api = async (path, { method = "GET", body } = {}) => {
   let res;
   try {
@@ -15,7 +15,7 @@ export const api = async (path, { method = "GET", body } = {}) => {
       body: body === undefined ? undefined : JSON.stringify(body),
     });
   } catch {
-    throw new ApiError(0, "Can't reach the ToothTwin server. Is it running?");
+    throw new ApiError(0, "Can't reach the DaantDost server. Is it running?");
   }
   let data = null;
   try {

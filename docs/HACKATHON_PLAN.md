@@ -1,4 +1,4 @@
-# ToothTwin: Hackathon Development Plan
+# DaantDost: Hackathon Development Plan
 
 A living 3D twin of the mouth for **learning**. Students explore it at any age, get tutored
 on it, are quizzed on it and examine AI virtual patients on it. Patients see treatments

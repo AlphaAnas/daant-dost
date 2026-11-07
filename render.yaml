@@ -1,7 +1,7 @@
 # One-click deploy on Render: one Node service serves the API and the built app.
 services:
   - type: web
-    name: toothtwin
+    name: daant-dost
     runtime: node
     plan: free
     buildCommand: npm ci && npm run build

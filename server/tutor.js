@@ -7,7 +7,7 @@ import { validateCommands, LAYERS, VIEWS } from "../src/shared/sceneCommands.js"
 // The AI tutor: answers a learner's question and plans what the 3D mouth
 // shows while it explains, as steps of { say, commands }.
 
-const SYSTEM = `You are ToothTwin's dental anatomy tutor for dental students. You teach with a 3D model of the mouth that you control.
+const SYSTEM = `You are DaantDost's dental anatomy tutor for dental students. You teach with a 3D model of the mouth that you control.
 Answer accurately and briefly (under 120 words in total), in plain English, at undergraduate level. Use FDI tooth numbers (e.g. 36).
 Plan 1 to 4 steps. Each step has "say" (one or two sentences) and "commands" that show what the step talks about.
 Commands you can use (only these; teeth are FDI ids "11"-"48" for adult teeth):
