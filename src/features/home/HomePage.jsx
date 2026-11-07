@@ -6,7 +6,7 @@ import { SceneProvider, createSceneStore } from "../../scene/sceneStore";
 
 const heroStore = () => createSceneStore({ autoRotate: true, open: 0.35 });
 
-// Who ToothTwin is for, and what each of them does here.
+// Who DaantDost is for, and what each of them does here.
 const AUDIENCES = [
   {
     icon: FiBookOpen,
@@ -70,7 +70,7 @@ const HomePage = () => (
             Learn dentistry on a <span className="bg-gradient-to-r from-sky to-[#7CD8FF] bg-clip-text text-transparent">living 3D mouth.</span>
           </motion.h1>
           <motion.p {...rise(2)} className="mt-5 max-w-lg text-lg leading-relaxed text-white/70">
-            ToothTwin is a 3D mouth with an AI inside. Students practise on AI patients and get marked, teachers set cases in seconds, and patients see their treatment before it happens.
+            DaantDost is a 3D mouth with an AI inside. Students practise on AI patients and get marked, teachers set cases in seconds, and patients see their treatment before it happens.
           </motion.p>
           <motion.div {...rise(3)} className="mt-8 flex flex-wrap gap-3">
             <Link to="/assess" className="btn-primary px-6 py-3.5 text-base shadow-lg shadow-brand/30">
@@ -116,7 +116,7 @@ const HomePage = () => (
     <section className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6" aria-labelledby="who">
       <p className="text-sm font-bold uppercase tracking-wider text-brand">Who it's for</p>
       <h2 id="who" className="mt-2 font-display text-2xl font-semibold sm:text-3xl">Pick who you are to get started</h2>
-      <p className="mt-2 max-w-2xl text-ink-soft">One 3D mouth, three ways to use it. Every patient in ToothTwin is fictional, and nothing here is a diagnosis.</p>
+      <p className="mt-2 max-w-2xl text-ink-soft">One 3D mouth, three ways to use it. Every patient in DaantDost is fictional, and nothing here is a diagnosis.</p>
       <div className="mt-8 grid gap-5 lg:grid-cols-3">
         {AUDIENCES.map(({ icon: Icon, who, tagline, does, cta, to, more, tone }, i) => (
           <article

@@ -1,10 +1,10 @@
-# ToothTwin
+# DaantDost
 
 Learn dentistry on a living 3D mouth. Students interview **AI virtual patients**, examine
 them on the 3D model, get **marked by an AI examiner**, ask an **AI tutor** that moves the
 model while it explains, drill tooth numbering, and watch narrated treatment walkthroughs.
 
-Every patient is fictional. ToothTwin is for education and never diagnoses anyone.
+Every patient is fictional. DaantDost is for education and never diagnoses anyone.
 
 ## Run it
 

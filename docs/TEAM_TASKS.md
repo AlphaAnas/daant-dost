@@ -1,9 +1,9 @@
-# ToothTwin: who does what
+# DaantDost: who does what
 
 Read [CLAUDE.md](../CLAUDE.md) first (setup, code map, rules). Branch from `develop`
 (`feat/<topic>`), open a PR into `develop`, and ask the other developer to review.
 
-ToothTwin serves three kinds of user. Each developer owns whole user domains end to end
+DaantDost serves three kinds of user. Each developer owns whole user domains end to end
 (UI, API routes, AI prompts, tests), so you rarely touch the same files.
 
 | Domain | Who it serves | Owner |

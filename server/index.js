@@ -19,5 +19,5 @@ if (existsSync(dist)) {
 
 const port = Number(process.env.PORT) || 3001;
 app.listen(port, () => {
-  console.log(`ToothTwin API on http://localhost:${port} · store: ${store.kind} · AI: ${aiEnabled() ? MODEL : "off (scripted fallback)"}`);
+  console.log(`DaantDost API on http://localhost:${port} · store: ${store.kind} · AI: ${aiEnabled() ? MODEL : "off (scripted fallback)"}`);
 });

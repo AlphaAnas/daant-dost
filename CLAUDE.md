@@ -1,6 +1,6 @@
-# ToothTwin: guide for Claude and the team
+# DaantDost: guide for Claude and the team
 
-ToothTwin is a hackathon prototype for **dental education**: AI virtual patients and an AI
+DaantDost is a hackathon prototype for **dental education**: AI virtual patients and an AI
 examiner (OSCE-style assessment), an AI tutor that drives a 3D mouth, quizzes, and
 narrated treatment walkthroughs. Every patient is fictional. There is **no clinical/dentist
 module**; never add patient intake, triage or diagnosis of real people.
