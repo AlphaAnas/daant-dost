@@ -25,8 +25,12 @@ and dental reference data.
 
 ## Differences from the main app
 
+
 - `src/components/CaseForm.jsx` is a cut-down copy: same props, but no API, router,
   MR number or patient history. Submitting shows the case payload on the page
   instead of starting an AI work-up.
 - `src/components/anatomy/anatomyModel.js` holds only `STAGE_COLORS`, the one thing the mouth uses from it.
 - `CameraRig.jsx` and `hasWebGL.js` are copied unchanged.
+
+
+WORK IN PROGRESS
