@@ -6,6 +6,7 @@ import { CASES, caseById } from "./cases.js";
 import { TUTOR_SUGGESTIONS, tutorPlan } from "./tutor.js";
 import { LANGUAGES, TREATMENTS, explainPlan } from "./explain.js";
 import { generateCase } from "./caseAuthor.js";
+import { rateLimit } from "./rateLimit.js";
 import {
   MAX_HISTORY_QUESTIONS,
   answerItem,
@@ -32,8 +33,11 @@ const cleanStudent = (s) => ({
   name: String(s?.name || "Student").trim().slice(0, 60) || "Student",
 });
 
-export const createApp = ({ store }) => {
+export const createApp = ({ store, limits = {} }) => {
   const app = express();
+  app.set("trust proxy", 1);
+  const aiLimit = rateLimit({ max: 40, windowMs: 60_000, ...limits.ai });
+  const authorLimit = rateLimit({ max: 5, windowMs: 10 * 60_000, ...limits.author });
   app.use(express.json({ limit: "100kb" }));
   const api = express.Router();
 
@@ -60,6 +64,7 @@ export const createApp = ({ store }) => {
 
   api.post(
     "/cases/generate",
+    authorLimit,
     wrap(async (req, res) => {
       const brief = String(req.body?.brief || "").trim().slice(0, 400);
       if (brief.length < 8) throw new HttpError(400, "Describe the patient in a few words first.");
@@ -115,6 +120,7 @@ export const createApp = ({ store }) => {
 
   api.post(
     "/assessments/:id/ask",
+    aiLimit,
     wrap(async (req, res) => {
       const { attempt, card } = await load(req.params.id);
       const question = String(req.body?.question || "").trim().slice(0, 500);
@@ -140,6 +146,7 @@ export const createApp = ({ store }) => {
 
   api.post(
     "/assessments/:id/answer",
+    aiLimit,
     wrap(async (req, res) => {
       const { attempt, card } = await load(req.params.id);
       if (attempt.status !== "items") throw new HttpError(409, "There is no question waiting for an answer.");
@@ -159,6 +166,7 @@ export const createApp = ({ store }) => {
 
   api.post(
     "/assessments/:id/finish",
+    aiLimit,
     wrap(async (req, res) => {
       const { attempt, card } = await load(req.params.id);
       if (!attempt.report) {
@@ -176,6 +184,7 @@ export const createApp = ({ store }) => {
 
   api.post(
     "/tutor",
+    aiLimit,
     wrap(async (req, res) => {
       const question = String(req.body?.question || "").trim().slice(0, 500);
       if (!question) throw new HttpError(400, "Ask the tutor a question.");
@@ -198,6 +207,7 @@ export const createApp = ({ store }) => {
 
   api.post(
     "/explain",
+    aiLimit,
     wrap(async (req, res) => {
       const plan = await explainPlan(String(req.body?.treatment || ""), String(req.body?.language || "English"));
       if (!plan) throw new HttpError(404, "That treatment isn't available yet.");

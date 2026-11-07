@@ -119,3 +119,15 @@ describe("case generation", () => {
     expect(start.text).not.toContain(card.diagnosis);
   });
 });
+
+describe("rate limit", () => {
+  test("AI routes slow down a flood from one address", async () => {
+    const local = createApp({ store: await createStore({ mongoUri: "", file: null }), limits: { ai: { max: 2 } } });
+    const ask = () => request(local).post("/api/tutor").send({ question: "fdi numbering" });
+    expect((await ask()).status).toBe(200);
+    expect((await ask()).status).toBe(200);
+    const res = await ask();
+    expect(res.status).toBe(429);
+    expect(res.headers["retry-after"]).toBeDefined();
+  });
+});

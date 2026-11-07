@@ -18,11 +18,18 @@ Progress = done tasks ÷ total tasks in that track (stretch tasks are not counte
 
 | Track | Done | Total | Progress |
 |---|---|---|---|
-| Setup (both) | 0 | 3 | 0% |
-| Dev A: 3D and UI | 0 | 10 | 0% |
-| Dev B: Backend and AI | 0 | 10 | 0% |
+| Setup (both) | 3 | 3 | 100% |
+| Dev A: 3D and UI | 5 | 10 | 50% (age mouth A4-A7 in progress) |
+| Dev B: Backend and AI | 9 | 10 | 90% |
 | Demo readiness (both) | 0 | 4 | 0% |
-| **Overall** | **0** | **27** | **0%** |
+| **Overall** | **17** | **27** | **63%** |
+
+Bonus done: B-S1 AI case generator (stretch).
+
+**Notes on what shipped (Nov 7):** the AI examiner returns full JSON turns rather than a
+token stream (the UI reveals text word by word instead). Progress (XP, streak, weak spots)
+is kept in the browser for now. A10 still needs the Cmd-K palette and shortcuts; B10 still
+needs a rate limit and the deploy.
 
 We update this table and the task rows below after every task is merged.
 
@@ -281,24 +288,24 @@ response or a mock command list).
 
 | ID | Task | Owner | Done when | Status |
 |---|---|---|---|---|
-| S1 | Agree on this plan and the contracts in section 4 | Both | Both say yes | ⬜ |
-| S2 | Remove clinical code: delete `CaseForm.jsx`, `DentalCase.jsx`, triage `STAGE_COLORS`, `care` colours, `payload`/`draft` in `toothSelection.js`; keep study notes as teaching content | A | App runs, tests pass, no clinical words left | ⬜ |
-| S3 | Express server skeleton, `/api/health`, Vite proxy, `npm run dev` runs both, `.env.example`, store adapter (memory, with Mongo when `MONGO_URI` is set) | B | `curl localhost:5173/api/health` works through the proxy | ⬜ |
+| S1 | Agree on this plan and the contracts in section 4 | Both | Both say yes | ✅ |
+| S2 | Remove clinical code: delete `CaseForm.jsx`, `DentalCase.jsx`, triage `STAGE_COLORS`, `care` colours, `payload`/`draft` in `toothSelection.js`; keep study notes as teaching content | A | App runs, tests pass, no clinical words left | ✅ |
+| S3 | Express server skeleton, `/api/health`, Vite proxy, `npm run dev` runs both, `.env.example`, store adapter (memory, with Mongo when `MONGO_URI` is set) | B | `curl localhost:5173/api/health` works through the proxy | ✅ |
 
 ### Dev A: 3D and UI
 
 | ID | Task | Done when | Status |
 |---|---|---|---|
-| A1 | Design kit (Button, Panel, Sheet, Segmented, Slider, Toast) + theme tokens light/dark + AppShell with nav + routes for every screen | Every route opens with a title; theme toggle works | ⬜ |
-| A2 | Scene store (zustand) + `sceneCommands.js` validator + `runSequence(steps)` for timed steps; viewer toolbar goes through the store | Buttons, keyboard and a test command list all move the view | ⬜ |
-| A3 | Camera commands for teeth and regions, `highlight` glow, `section` from a command | `focusTeeth ["36"]` + `highlight` + `section` work from code | ⬜ |
-| A4 | `chronology.js` + `dentitionAtAge()` + quick tests (ages 0, 1, 3, 7, 12.25, 25) | Tests pass | ⬜ |
-| A5 | Baby teeth (scaled shortcut) + eruption movement + falling out | At age 7 you see a mixed mouth with adult teeth inside the bone in the X-ray view | ⬜ |
-| A6 | Crown and root formation in the shader + jaw growth | Young teeth show short roots; the jaw grows smoothly | ⬜ |
-| A7 | Timeline UI (milestones, Play, counter) on Explore | Scrubbing 0 to 25 is smooth, about 60 fps on a laptop | ⬜ |
-| A8 | Explore page: tutor drawer UI with streamed answer, step captions, study notes | A canned tutor answer plays as a guided tour | ⬜ |
-| A9 | `showCondition` looks (cavity, fracture, filling, crown, root canal, missing) + Explain page player with voice and step bar | A canned "filling" script plays end to end with narration | ⬜ |
-| A10 | Home page hero, Cmd-K palette, shortcuts, mobile layout, motion polish | Looks finished on a laptop and a phone | ⬜ |
+| A1 | Design kit (Button, Panel, Sheet, Segmented, Slider, Toast) + theme tokens light/dark + AppShell with nav + routes for every screen | Every route opens with a title; theme toggle works | ✅ |
+| A2 | Scene store (zustand) + `sceneCommands.js` validator + `runSequence(steps)` for timed steps; viewer toolbar goes through the store | Buttons, keyboard and a test command list all move the view | ✅ |
+| A3 | Camera commands for teeth and regions, `highlight` glow, `section` from a command | `focusTeeth ["36"]` + `highlight` + `section` work from code | ✅ |
+| A4 | `chronology.js` + `dentitionAtAge()` + quick tests (ages 0, 1, 3, 7, 12.25, 25) | Tests pass | 🟨 |
+| A5 | Baby teeth (scaled shortcut) + eruption movement + falling out | At age 7 you see a mixed mouth with adult teeth inside the bone in the X-ray view | 🟨 |
+| A6 | Crown and root formation in the shader + jaw growth | Young teeth show short roots; the jaw grows smoothly | 🟨 |
+| A7 | Timeline UI (milestones, Play, counter) on Explore | Scrubbing 0 to 25 is smooth, about 60 fps on a laptop | 🟨 |
+| A8 | Explore page: tutor drawer UI with streamed answer, step captions, study notes | A canned tutor answer plays as a guided tour | ✅ |
+| A9 | `showCondition` looks (cavity, fracture, filling, crown, root canal, missing) + Explain page player with voice and step bar | A canned "filling" script plays end to end with narration | ✅ |
+| A10 | Home page hero, Cmd-K palette, shortcuts, mobile layout, motion polish | Looks finished on a laptop and a phone | 🟨 |
 | A-S1 | Stretch: real baked baby-tooth shapes | | ⏭️ |
 | A-S2 | Stretch: live classroom follow mode (camera sync) | | ⏭️ |
 
@@ -306,17 +313,17 @@ response or a mock command list).
 
 | ID | Task | Done when | Status |
 |---|---|---|---|
-| B1 | `server/ai.js`: `askJson` (structured, validated) + `askStream` (SSE), refusal and error handling, no-key fallback switch | A test script prints a parsed object and a streamed reply | ⬜ |
-| B2 | 8 fictional case cards (2 tooth pain, 1 wisdom tooth, 2 gums, 1 ulcer, 1 dry socket, 1 jaw joint) + `GET /cases` without hidden data | List works; hidden data never appears | ⬜ |
-| B3 | Case attempts: `start`, `chat` (patient prompt, streaming), `test` (findings from the card) | A full conversation streams in the terminal | ⬜ |
-| B4 | `submit` + grader prompt: score, verdict, missed points, teaching points, highlight commands | Right and wrong answers get sensible scores | ⬜ |
-| B5 | Case list + Case Play screen: chat UI with typing indicator, tests tray, tooth marking via the 3D view, diagnosis bar, score card | One case playable start to finish in the browser | ⬜ |
-| B6 | `POST /tutor` + tutor prompt (answer + steps with validated commands), wired to A8's drawer | Asking about 36 moves the camera and highlights it | ⬜ |
-| B7 | `POST /explain` + explain prompt for 5 treatments and any language, wired to A9's player | "Root canal in Spanish" plays narrated | ⬜ |
-| B8 | Quiz engine (client side): Find the tooth (click on the 3D view), Numbering (FDI, Palmer, Universal), Age quiz (uses `dentitionAtAge`), Charting challenge | Each mode plays a 10-question round | ⬜ |
-| B9 | Progress: XP, streak, weak spots (`/progress` + localStorage), "practise your weak spots" round, Learn screen | Wrong answers come back in the next round | ⬜ |
-| B10 | `fallbacks.json` (5 tutor answers, 5 explain scripts) + rate limit + production build (Express serves `dist`) + deploy | Works with no API key; public URL live | ⬜ |
-| B-S1 | Stretch: AI case generator + Teach screen | | ⏭️ |
+| B1 | `server/ai.js`: `askJson` (structured, validated) + `askStream` (SSE), refusal and error handling, no-key fallback switch | A test script prints a parsed object and a streamed reply | ✅ |
+| B2 | 8 fictional case cards (2 tooth pain, 1 wisdom tooth, 2 gums, 1 ulcer, 1 dry socket, 1 jaw joint) + `GET /cases` without hidden data | List works; hidden data never appears | ✅ |
+| B3 | Case attempts: `start`, `chat` (patient prompt, streaming), `test` (findings from the card) | A full conversation streams in the terminal | ✅ |
+| B4 | `submit` + grader prompt: score, verdict, missed points, teaching points, highlight commands | Right and wrong answers get sensible scores | ✅ |
+| B5 | Case list + Case Play screen: chat UI with typing indicator, tests tray, tooth marking via the 3D view, diagnosis bar, score card | One case playable start to finish in the browser | ✅ |
+| B6 | `POST /tutor` + tutor prompt (answer + steps with validated commands), wired to A8's drawer | Asking about 36 moves the camera and highlights it | ✅ |
+| B7 | `POST /explain` + explain prompt for 5 treatments and any language, wired to A9's player | "Root canal in Spanish" plays narrated | ✅ |
+| B8 | Quiz engine (client side): Find the tooth (click on the 3D view), Numbering (FDI, Palmer, Universal), Age quiz (uses `dentitionAtAge`), Charting challenge | Each mode plays a 10-question round | ✅ |
+| B9 | Progress: XP, streak, weak spots (`/progress` + localStorage), "practise your weak spots" round, Learn screen | Wrong answers come back in the next round | ✅ |
+| B10 | `fallbacks.json` (5 tutor answers, 5 explain scripts) + rate limit + production build (Express serves `dist`) + deploy | Works with no API key; public URL live | 🟨 |
+| B-S1 | Stretch: AI case generator + Teach screen | | ✅ |
 | B-S2 | Stretch: live classroom server (Socket.IO) | | ⏭️ |
 
 ### Demo readiness (both, last)
