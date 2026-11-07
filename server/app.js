@@ -5,6 +5,7 @@ import { coachReport, gradeText, patientReply } from "./assessor.js";
 import { CASES, caseById } from "./cases.js";
 import { TUTOR_SUGGESTIONS, tutorPlan } from "./tutor.js";
 import { LANGUAGES, TREATMENTS, explainPlan } from "./explain.js";
+import { generateCase } from "./caseAuthor.js";
 import {
   MAX_HISTORY_QUESTIONS,
   answerItem,
@@ -36,20 +37,43 @@ export const createApp = ({ store }) => {
   app.use(express.json({ limit: "100kb" }));
   const api = express.Router();
 
+  // Built-in stations first, then ones the AI wrote.
+  const getCard = async (id) => caseById(id) || (id ? await store.getCase(String(id)) : null);
+
   const load = async (id) => {
     const attempt = await store.get(id);
     if (!attempt) throw new HttpError(404, "That assessment could not be found.");
-    return { attempt, card: caseById(attempt.caseId) };
+    const card = await getCard(attempt.caseId);
+    if (!card) throw new HttpError(404, "That case is no longer available.");
+    return { attempt, card };
   };
 
   api.get("/health", (req, res) => res.json({ ok: true, ai: aiEnabled(), model: aiEnabled() ? MODEL : null, db: store.kind }));
 
-  api.get("/cases", (req, res) => res.json(CASES.map(publicCase)));
+  api.get(
+    "/cases",
+    wrap(async (req, res) => {
+      const generated = await store.listCases();
+      res.json([...CASES.map(publicCase), ...generated.map((c) => ({ ...publicCase(c), generated: true }))]);
+    }),
+  );
+
+  api.post(
+    "/cases/generate",
+    wrap(async (req, res) => {
+      const brief = String(req.body?.brief || "").trim().slice(0, 400);
+      if (brief.length < 8) throw new HttpError(400, "Describe the patient in a few words first.");
+      const difficulty = [1, 2, 3].includes(req.body?.difficulty) ? req.body.difficulty : undefined;
+      const card = await generateCase(brief, { difficulty, author: cleanStudent(req.body?.student).name });
+      await store.saveCase(card);
+      res.status(201).json({ ...publicCase(card), generated: true });
+    }),
+  );
 
   api.post(
     "/assessments",
     wrap(async (req, res) => {
-      const card = caseById(req.body?.caseId);
+      const card = await getCard(req.body?.caseId);
       if (!card) throw new HttpError(404, "That case could not be found.");
       const mode = req.body?.mode === "exam" ? "exam" : "practice";
       const attempt = startAttempt(card, { id: randomUUID(), student: cleanStudent(req.body?.student), mode });
@@ -62,10 +86,14 @@ export const createApp = ({ store }) => {
     "/assessments",
     wrap(async (req, res) => {
       const list = await store.list(String(req.query.studentId || ""));
+      const cards = await Promise.all(list.map((a) => getCard(a.caseId)));
       res.json(
-        list.map((a) => ({
+        list
+          .map((a, i) => [a, cards[i]])
+          .filter(([, card]) => card)
+          .map(([a, card]) => ({
           id: a.id,
-          case: publicCase(caseById(a.caseId)),
+          case: publicCase(card),
           mode: a.mode,
           status: a.status,
           startedAt: a.startedAt,
@@ -181,9 +209,11 @@ export const createApp = ({ store }) => {
   app.use("/api", (req, res) => res.status(404).json({ error: "Not found." }));
   // eslint-disable-next-line no-unused-vars
   app.use((err, req, res, next) => {
-    const status = err.status || (err.type === "entity.parse.failed" ? 400 : 500);
-    if (status >= 500) console.error(err);
-    res.status(status).json({ error: status >= 500 ? "Something went wrong. Please try again." : err.message });
+    if (err.type === "entity.parse.failed") return res.status(400).json({ error: "That request wasn't valid JSON." });
+    // Errors that set their own status carry a message written for people.
+    const status = err.status || 500;
+    if (!err.status) console.error(err);
+    res.status(status).json({ error: err.status ? err.message : "Something went wrong. Please try again." });
   });
   return app;
 };

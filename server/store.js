@@ -5,7 +5,8 @@ import { fileURLToPath } from "node:url";
 // Where attempts live: MongoDB when MONGO_URI is set, otherwise memory saved
 // to server/data/attempts.json. Both have the same three functions.
 
-const memoryStore = ({ file }) => {
+// A Map kept in a JSON file (or only in memory when `file` is null).
+const persistedMap = (file) => {
   const map = new Map();
   if (file) {
     try {
@@ -15,7 +16,7 @@ const memoryStore = ({ file }) => {
     }
   }
   let timer;
-  const flush = () => {
+  map.flush = () => {
     if (!file) return;
     clearTimeout(timer);
     timer = setTimeout(() => {
@@ -23,8 +24,22 @@ const memoryStore = ({ file }) => {
       writeFileSync(file, JSON.stringify([...map.values()]));
     }, 200);
   };
+  return map;
+};
+
+const memoryStore = ({ file }) => {
+  const map = persistedMap(file);
+  const cases = persistedMap(file && file.replace(/attempts\.json$/, "cases.json"));
+  const flush = map.flush;
   return {
     kind: "memory",
+    saveCase: async (card) => {
+      cases.set(card.id, structuredClone(card));
+      cases.flush();
+      return card;
+    },
+    getCase: async (id) => structuredClone(cases.get(id) ?? null),
+    listCases: async () => [...cases.values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
     get: async (id) => structuredClone(map.get(id) ?? null),
     save: async (attempt) => {
       map.set(attempt.id, structuredClone(attempt));
@@ -51,8 +66,17 @@ const mongoStore = async (uri) => {
         { minimize: false },
       ),
     );
+  const Case =
+    mongoose.models.GeneratedCase ||
+    mongoose.model("GeneratedCase", new mongoose.Schema({ _id: String, createdAt: String, data: Object }, { minimize: false }));
   return {
     kind: "mongo",
+    saveCase: async (card) => {
+      await Case.updateOne({ _id: card.id }, { _id: card.id, createdAt: card.createdAt, data: card }, { upsert: true });
+      return card;
+    },
+    getCase: async (id) => (await Case.findById(id).lean())?.data ?? null,
+    listCases: async () => (await Case.find().sort({ createdAt: -1 }).limit(100).lean()).map((d) => d.data),
     get: async (id) => (await Attempt.findById(id).lean())?.data ?? null,
     save: async (a) => {
       await Attempt.updateOne(

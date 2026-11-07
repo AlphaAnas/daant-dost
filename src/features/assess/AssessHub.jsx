@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FiArrowRight, FiAward, FiBookOpen, FiClock, FiMessageCircle, FiTarget } from "react-icons/fi";
+import { FiArrowRight, FiAward, FiBookOpen, FiClock, FiMessageCircle, FiPlus, FiTarget, FiZap } from "react-icons/fi";
 import { api } from "../../lib/api";
 import { getStudent, useStudent } from "../../lib/student";
 import Avatar from "../../ui/Avatar";
 import NameDialog from "../../app/NameDialog";
+import CreateCaseDialog from "./CreateCaseDialog";
 import { GRADE_STYLE, SITE_LABEL } from "./labels";
 
 const MODES = [
@@ -37,9 +38,12 @@ const AssessHub = () => {
   const [starting, setStarting] = useState(null);
   const [asking, setAsking] = useState(null);
   const [error, setError] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [aiOn, setAiOn] = useState(false);
 
   useEffect(() => {
     api("/cases").then(setCases, (e) => setError(e.message));
+    api("/health").then((h) => setAiOn(h.ai), () => {});
     api(`/assessments?studentId=${encodeURIComponent(getStudent().id)}`).then(setPast, () => {});
   }, []);
 
@@ -137,7 +141,14 @@ const AssessHub = () => {
                   <p className="text-sm text-ink-soft">{SITE_LABEL[c.site]}</p>
                 </div>
               </div>
-              <h3 className="mt-4 font-display text-lg font-semibold">{c.title}</h3>
+              <h3 className="mt-4 flex items-start justify-between gap-2 font-display text-lg font-semibold">
+                {c.title}
+                {c.generated && (
+                  <span className="mt-0.5 inline-flex shrink-0 items-center gap-1 rounded-full bg-brand-tint px-2 py-0.5 font-sans text-xs font-bold text-brand-dark">
+                    <FiZap /> AI-made
+                  </span>
+                )}
+              </h3>
               <p className="mt-1 flex-1 text-ink-soft">“{c.patient.complaint}”</p>
               <div className="mt-4 flex items-center justify-between text-sm text-ink-soft">
                 <Dots n={c.difficulty} />
@@ -150,6 +161,19 @@ const AssessHub = () => {
               </button>
             </motion.article>
           ))}
+          {cases && (
+            <button
+              type="button"
+              onClick={() => setCreating(true)}
+              className="group flex min-h-[220px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-line bg-white/50 p-5 text-center transition-colors hover:border-brand hover:bg-brand-tint/40"
+            >
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand text-white transition-transform group-hover:scale-110">
+                <FiPlus size={22} />
+              </span>
+              <span className="mt-3 font-display text-lg font-semibold">Write a new patient with AI</span>
+              <span className="mt-1 max-w-xs text-sm text-ink-soft">Describe a scenario in one line and get a full, marked station.</span>
+            </button>
+          )}
         </div>
 
         {past.length > 0 && (
@@ -182,6 +206,15 @@ const AssessHub = () => {
         )}
       </section>
 
+      <CreateCaseDialog
+        open={creating}
+        aiOn={aiOn}
+        onClose={() => setCreating(false)}
+        onCreated={(card) => {
+          setCreating(false);
+          setCases((list) => [...(list || []), card]);
+        }}
+      />
       <NameDialog
         open={Boolean(asking)}
         title="Before you start: your name?"

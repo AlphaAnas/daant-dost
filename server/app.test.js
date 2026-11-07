@@ -99,3 +99,23 @@ describe("explain API", () => {
     expect((await request(app).post("/api/explain").send({ treatment: "magic" })).status).toBe(404);
   });
 });
+
+describe("case generation", () => {
+  test("needs the AI and says so", async () => {
+    const res = await request(app).post("/api/cases/generate").send({ brief: "A 50 year old with a periodontal abscess" });
+    expect(res.status).toBe(503);
+    expect(res.body.error).toMatch(/needs the AI/);
+  });
+
+  test("a generated case plays like a built-in one", async () => {
+    const { assembleCase } = await import("./caseAuthor.js");
+    const store = await createStore({ mongoUri: "", file: null });
+    const local = createApp({ store });
+    const raw = JSON.parse(JSON.stringify((await import("./caseAuthor.test.fixture.js")).RAW));
+    const card = await store.saveCase(assembleCase(raw));
+    expect((await request(local).get("/api/cases")).body.at(-1)).toMatchObject({ id: card.id, generated: true });
+    const start = await request(local).post("/api/assessments").send({ caseId: card.id });
+    expect(start.status).toBe(201);
+    expect(start.text).not.toContain(card.diagnosis);
+  });
+});

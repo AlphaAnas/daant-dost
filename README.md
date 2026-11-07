@@ -1,32 +1,53 @@
-# Dental 3D
+# ToothTwin
 
-The dental clinical module from basic-medic-web, as a standalone Vite + React app:
-a generated 3D mouth with all 32 teeth (layers, jaw control, surface picking, tooth
-section view), an FDI odontogram with primary teeth, tooth search, charted findings
-and dental reference data.
+Learn dentistry on a living 3D mouth. Students interview **AI virtual patients**, examine
+them on the 3D model, get **marked by an AI examiner**, ask an **AI tutor** that moves the
+model while it explains, drill tooth numbering, and watch narrated treatment walkthroughs.
 
-## Run
+Every patient is fictional. ToothTwin is for education and never diagnoses anyone.
+
+## Run it
 
     npm install
-    npm run dev        # http://localhost:5173
+    cp .env.example .env      # optional: add ANTHROPIC_API_KEY for the AI
+    npm run dev               # web on http://localhost:5173, API on :3001
     npm test
-    npm run build
 
-## Layout
+Production (one server for the API and the built app):
 
-- `src/components/dental/` — the module, copied unchanged from the main app
-  - `DentalCase.jsx` — the case screen (site selection, chart, insights)
-  - `three/` — the 3D mouth (`DentalViewer`, `DentalScene`, `ToothSection`, materials, model loader)
-  - `Odontogram.jsx`, `ToothPicker.jsx`, `ToothPanel.jsx`, `toothSelection.js`
-- `src/data/teeth.js`, `src/data/dental.js` — tooth catalogue, conditions, regions, reference data
-- `src/assets/models/dentition.bin` — the baked model (meshopt-compressed)
-- `scripts/dental-model/` — the generator that bakes the model from signed distance fields,
-  so there is no third-party model licence. Rebuild with `npm run bake:dental` (about 3 minutes).
+    npm run build && npm start   # http://localhost:3001
 
-## Differences from the main app
+**No API key?** Everything still works: the patient answers from its script, written answers
+are marked by key points, and the tutor and explainer use built-in answers. Add
+`ANTHROPIC_API_KEY` to switch on Claude (`AI_MODEL`, default `claude-opus-5-5`).
 
-- `src/components/CaseForm.jsx` is a cut-down copy: same props, but no API, router,
-  MR number or patient history. Submitting shows the case payload on the page
-  instead of starting an AI work-up.
-- `src/components/anatomy/anatomyModel.js` holds only `STAGE_COLORS`, the one thing the mouth uses from it.
-- `CameraRig.jsx` and `hasWebGL.js` are copied unchanged.
+**MongoDB is optional.** Attempts are saved to `server/data/attempts.json`; set `MONGO_URI`
+to use MongoDB instead.
+
+## What's inside
+
+| Area | Where | What it does |
+|---|---|---|
+| AI assessment | `server/engine.js`, `server/assessor.js`, `server/cases/*.json`, `src/features/assess/` | OSCE-style stations: history (AI patient), examination (pick the tooth in 3D), investigations, diagnosis, management and communication; scored per skill with AI coaching |
+| AI tutor | `server/tutor.js`, `src/features/explore/TutorPanel.jsx` | Answers a question as narrated steps that drive the 3D mouth |
+| Learn drills | `src/features/learn/` | Find the tooth in 3D, FDI, Palmer and Universal, tooth types; XP, streak, weak spots |
+| Explain | `server/explain.js`, `src/features/explain/` | Five treatments narrated step by step in seven languages |
+| Scene commands | `src/shared/sceneCommands.js`, `src/scene/sceneStore.js` | The one way anything (UI, AI) moves the 3D mouth; validated on server and client |
+| 3D mouth | `src/components/dental/three/`, `scripts/dental-model/` | Generated from signed distance fields (no licensed model): layers, jaw, X-ray, tooth sections |
+
+## API
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/api/health` | `{ ok, ai, model, db }` |
+| GET | `/api/cases` | Patient stations (no answers) |
+| POST | `/api/assessments` | Start: `{ caseId, mode: "practice" \| "exam", student: { id, name } }` |
+| POST | `/api/assessments/:id/ask` | Ask the patient `{ question }` |
+| POST | `/api/assessments/:id/examine` | End the history |
+| POST | `/api/assessments/:id/answer` | Answer the current question `{ answer }` |
+| POST | `/api/assessments/:id/finish` | Score and feedback |
+| GET | `/api/assessments?studentId=` | A student's attempts |
+| POST | `/api/tutor` | `{ question, context: { teeth, layer } }` → `{ answer, steps }` |
+| GET/POST | `/api/explain` | Treatments and languages / `{ treatment, language }` → steps |
+
+Plan and status: [docs/HACKATHON_PLAN.md](docs/HACKATHON_PLAN.md).
