@@ -7,6 +7,7 @@ import { TUTOR_SUGGESTIONS, tutorPlan } from "./tutor.js";
 import { LANGUAGES, TREATMENTS, explainPlan } from "./explain.js";
 import { generateCase } from "./caseAuthor.js";
 import { rateLimit } from "./rateLimit.js";
+import { publicBank, selfCheckAnswer, selfCheckResult } from "./selfcheck/selfCheck.js";
 import {
   MAX_HISTORY_QUESTIONS,
   answerItem,
@@ -195,6 +196,39 @@ export const createApp = ({ store, limits = {} }) => {
           layer: String(context.layer || ""),
         }),
       );
+    }),
+  );
+
+  // The patient self-check: questions, then a plain-language result.
+  api.get("/selfcheck", (req, res) => res.json({ problems: publicBank(), languages: LANGUAGES }));
+
+  api.post(
+    "/selfcheck/result",
+    aiLimit,
+    wrap(async (req, res) => {
+      const b = req.body || {};
+      const result = await selfCheckResult({
+        problem: String(b.problem || ""),
+        answers: b.answers && typeof b.answers === "object" ? b.answers : {},
+        story: String(b.story || "").slice(0, 1500),
+        teeth: [].concat(b.teeth || []),
+        who: b.who === "child" ? "child" : "me",
+        age: Number.isFinite(Number(b.age)) ? Number(b.age) : undefined,
+        language: LANGUAGES.includes(b.language) ? b.language : "English",
+      });
+      if (!result) throw new HttpError(400, "Choose what kind of problem it is first.");
+      res.json(result);
+    }),
+  );
+
+  api.post(
+    "/selfcheck/ask",
+    aiLimit,
+    wrap(async (req, res) => {
+      const question = String(req.body?.question || "").trim().slice(0, 500);
+      if (!question) throw new HttpError(400, "Type your question first.");
+      const language = LANGUAGES.includes(req.body?.language) ? req.body.language : "English";
+      res.json(await selfCheckAnswer({ question, context: req.body?.context || {}, language }));
     }),
   );
 

@@ -131,3 +131,21 @@ describe("rate limit", () => {
     expect(res.headers["retry-after"]).toBeDefined();
   });
 });
+
+describe("patient self-check API", () => {
+  test("serves the questions and a plain result with the tooth lit up", async () => {
+    const bank = await request(app).get("/api/selfcheck");
+    expect(bank.body.problems.map((p) => p.id)).toContain("toothache");
+    const res = await request(app)
+      .post("/api/selfcheck/result")
+      .send({ problem: "toothache", answers: { lasts: "Minutes or longer", night: "Yes" }, teeth: ["36", "99"] });
+    expect(res.status).toBe(200);
+    expect(res.body.teeth).toEqual([{ id: "36", plain: "big back tooth, bottom left" }]);
+    expect(res.body.commands).toContainEqual({ type: "focusTeeth", teeth: ["36"] });
+    expect(res.body.causes[0].name).toBe("An inflamed nerve inside the tooth");
+  });
+
+  test("needs a problem", async () => {
+    expect((await request(app).post("/api/selfcheck/result").send({})).status).toBe(400);
+  });
+});

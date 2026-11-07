@@ -11,15 +11,15 @@ const AUDIENCES = [
   {
     icon: FiHeart,
     who: "Patients and parents",
-    tagline: "Understand a treatment before you say yes.",
+    tagline: "Know what's wrong and what to do, without the jargon.",
     does: [
-      "Watch a filling, root canal or implant explained in 3D",
-      "Hear it in your language: Urdu, Arabic, Hindi and more",
+      "Check your symptoms and find out how urgent it is",
+      "Watch a filling, root canal or implant explained in 3D, in your language",
       "See which teeth your child should have at their age",
     ],
-    cta: "See a treatment explained",
-    to: "/explain",
-    more: [["My child's teeth", "/explore?age=7"]],
+    cta: "Check my teeth",
+    to: "/check",
+    more: [["Treatments explained", "/explain"], ["My child's teeth", "/explore?age=7"]],
     tone: "from-[#FF7A2F] to-[#FFB020]",
   },
   {
@@ -67,24 +67,24 @@ const HomePage = () => (
             <span className="h-1.5 w-1.5 rounded-full bg-sky" /> For patients and parents
           </motion.p>
           <motion.h1 {...rise(1)} className="mt-5 font-display text-4xl font-semibold leading-[1.05] sm:text-5xl lg:text-6xl">
-            See your treatment <span className="bg-gradient-to-r from-sky to-[#7CD8FF] bg-clip-text text-transparent">before it happens.</span>
+            Tooth trouble? <span className="bg-gradient-to-r from-sky to-[#7CD8FF] bg-clip-text text-transparent">Find out what to do.</span>
           </motion.h1>
           <motion.p {...rise(2)} className="mt-5 max-w-lg text-lg leading-relaxed text-white/70">
-            Not sure what a root canal or an implant really means? Watch it explained step by step on a 3D mouth, in plain words and in your own language. Parents can also see which teeth their child should have at every age.
+            Show us where it hurts on a 3D mouth and answer a few simple questions. In about two minutes you'll know how urgent it is, what it could be, and what you can do right now, in plain words and in your own language.
           </motion.p>
           <motion.div {...rise(3)} className="mt-8 flex flex-wrap gap-3">
-            <Link to="/explain" className="btn-primary px-6 py-3.5 text-base shadow-lg shadow-brand/30">
-              See a treatment explained <FiArrowRight />
+            <Link to="/check" className="btn-primary px-6 py-3.5 text-base shadow-lg shadow-brand/30">
+              Check my teeth now <FiArrowRight />
             </Link>
-            <Link to="/explore?age=7" className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-6 py-3.5 font-bold text-white ring-1 ring-white/15 transition-colors hover:bg-white/15">
-              <FiCompass /> My child's teeth
+            <Link to="/explain" className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-6 py-3.5 font-bold text-white ring-1 ring-white/15 transition-colors hover:bg-white/15">
+              <FiCompass /> See a treatment explained
             </Link>
           </motion.div>
           <motion.dl {...rise(4)} className="mt-10 grid max-w-md grid-cols-3 gap-4 border-t border-white/10 pt-6">
             {[
-              ["5", "treatments explained"],
+              ["2 min", "to check"],
+              ["9", "common problems"],
               ["7", "languages"],
-              ["0–25", "years, tooth by tooth"],
             ].map(([n, label]) => (
               <div key={label}>
                 <dt className="sr-only">{label}</dt>
@@ -162,9 +162,9 @@ const HomePage = () => (
     <section className="border-t border-line bg-white">
       <div className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-12 sm:px-6 md:grid-cols-3">
         {[
-          ["1", "Pick a patient or a tooth", "Choose a practice case, a treatment, or click anywhere on the 3D mouth."],
-          ["2", "The AI responds", "The patient answers, the tutor explains and the 3D mouth moves to show you."],
-          ["3", "See how you did", "Students get a score for six clinical skills and a personal study plan."],
+          ["1", "Show us where", "Tap the tooth that hurts on the 3D mouth, or pick an area."],
+          ["2", "Answer simple questions", "No dental words. Pick the answers that fit, or skip what you don't know."],
+          ["3", "Know what to do", "How urgent it is, what it could be, what to do now and what to ask your dentist."],
         ].map(([n, title, body]) => (
           <div key={n} className="flex gap-4">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-stage font-display text-lg font-semibold text-white">{n}</span>

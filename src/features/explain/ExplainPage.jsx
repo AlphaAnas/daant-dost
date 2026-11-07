@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { FiChevronLeft, FiChevronRight, FiPause, FiPlay, FiVolume2, FiVolumeX } from "react-icons/fi";
 import DentalViewer from "../../components/dental/three/DentalViewer";
 import { SceneProvider, playCommands, useSceneStore } from "../../scene/sceneStore";
@@ -125,15 +126,17 @@ const Player = ({ plan, onBack }) => {
 };
 
 const ExplainPage = () => {
+  const [params] = useSearchParams();
   const [catalogue, setCatalogue] = useState(null);
-  const [language, setLanguage] = useState("English");
+  const [language, setLanguage] = useState(params.get("lang") || "English");
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
     api("/explain").then(setCatalogue, (e) => setError(e.message));
-  }, []);
+    if (params.get("t")) open(params.get("t"));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const open = async (treatment) => {
     setLoading(treatment);

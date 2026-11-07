@@ -7,6 +7,7 @@ import AssessmentPage from "../features/assess/AssessmentPage";
 import LearnPage from "../features/learn/LearnPage";
 import QuizPage from "../features/learn/QuizPage";
 import ExplainPage from "../features/explain/ExplainPage";
+import CheckPage from "../features/check/CheckPage";
 import NotFound from "./NotFound";
 
 export const routes = [
@@ -15,6 +16,7 @@ export const routes = [
     element: <AppShell />,
     children: [
       { index: true, element: <HomePage /> },
+      { path: "check", element: <CheckPage /> },
       { path: "explore", element: <ExplorePage /> },
       { path: "assess", element: <AssessHub /> },
       { path: "assess/:id", element: <AssessmentPage /> },
