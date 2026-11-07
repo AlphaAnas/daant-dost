@@ -3,7 +3,6 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Billboard, Environment, Html, Lightformer, OrbitControls } from "@react-three/drei";
 import { AdditiveBlending, Vector3 } from "three";
 import CameraRig from "../../anatomy/CameraRig";
-import { STAGE_COLORS } from "../../anatomy/anatomyModel";
 import { conditionById, dentalRegionById } from "../../../data/dental";
 import { toothById, surfaceName } from "../../../data/teeth";
 import { loadDentition } from "./loadDentition";
@@ -176,6 +175,8 @@ const Scene = ({
   open,
   autoRotate,
   command,
+  highlights = {},
+  conditions = [],
   onView,
 }) => {
   const controls = useRef();
@@ -185,7 +186,20 @@ const Scene = ({
   const { parts, hinge } = mouth;
   const byId = useMemo(() => new Map(mouth.teeth.map((t) => [t.id, t])), [mouth]);
   const picked = useMemo(() => new Set(teeth), [teeth]);
-  const rows = useMemo(() => new Map(chart.map((r) => [r.tooth, r])), [chart]);
+  // Charted rows, plus conditions a lesson or the AI has put on the mouth.
+  const rows = useMemo(() => {
+    const map = new Map(chart.map((r) => [r.tooth, { ...r }]));
+    conditions.forEach(({ tooth, condition, surfaces }) => {
+      const row = map.get(tooth) || { tooth, surfaces: [], conditions: [] };
+      map.set(tooth, {
+        tooth,
+        surfaces: [...new Set([...(row.surfaces || []), ...(surfaces || [])])],
+        conditions: [...new Set([...(row.conditions || []), condition])],
+        shown: true,
+      });
+    });
+    return map;
+  }, [chart, conditions]);
   const markedRegions = useMemo(() => new Set(regions), [regions]);
   const xray = layer === "xray";
 
@@ -206,6 +220,23 @@ const Scene = ({
   const angle = open * JAW_ANGLE;
   const focusKey = teeth.join(" ");
   useEffect(() => {
+    if (command?.kind === "teeth") {
+      const shown = command.teeth.map((id) => byId.get(id)).filter(Boolean);
+      if (shown.length) setGoal(toothCamera(shown, hinge, angle));
+      return;
+    }
+    if (command?.kind === "region") {
+      const v = REGION_VIEWS[command.region];
+      if (!v) return;
+      setGoal({ position: new Vector3(...v.position), target: new Vector3(...v.target) });
+      onView?.(v);
+      return;
+    }
+    if (command?.kind === "view") {
+      const v = VIEWS[command.view];
+      if (v) setGoal({ position: new Vector3(...v.position), target: new Vector3(...v.target) });
+      return;
+    }
     if (command?.type === "focus") {
       const shown = teeth.map((id) => byId.get(id)).filter(Boolean);
       const v = REGION_VIEWS[regions[0]];
@@ -276,7 +307,11 @@ const Scene = ({
   const renderTooth = (tooth) => {
     const row = rows.get(tooth.id);
     if (row?.conditions?.includes("missing")) return null;
-    const isPicked = picked.has(tooth.id);
+    const lit = highlights[tooth.id];
+    // A condition shown without surfaces lights the whole tooth in its colour.
+    const whole = row?.shown && !row.surfaces.length && conditionById(row.conditions.at(-1))?.color;
+    const isPicked = picked.has(tooth.id) || Boolean(lit) || Boolean(whole);
+    const tint = lit || whole || color;
     const restoration = ["crown", "implant"].find((c) => row?.conditions?.includes(c));
     const material = xray
       ? materials[isPicked ? "xrayPicked" : "xrayTooth"]
@@ -284,8 +319,8 @@ const Scene = ({
           picked: isPicked,
           hovered: hover?.tooth === tooth.id,
           restoration,
-          surfaces: surfaceTints(row, color),
-          accent: color,
+          surfaces: surfaceTints(row, tint),
+          accent: tint,
           size: tooth.size,
         });
     return (
@@ -313,8 +348,9 @@ const Scene = ({
     return findings?.length ? `${tooth.id} · ${findings.join(", ")}` : tooth.id;
   };
 
-  const lowerTags = [...picked].filter((id) => byId.get(id)?.jaw === "lower");
-  const upperTags = [...picked].filter((id) => byId.get(id)?.jaw === "upper");
+  const tagged = [...new Set([...picked, ...Object.keys(highlights)])];
+  const lowerTags = tagged.filter((id) => byId.get(id)?.jaw === "lower");
+  const upperTags = tagged.filter((id) => byId.get(id)?.jaw === "upper");
 
   return (
     <>
@@ -348,7 +384,7 @@ const Scene = ({
             )}
             {mouth.teeth.filter((t) => t.jaw === "upper").map(renderTooth)}
             {upperTags.map((id) => (
-              <Tag key={id} at={tagAt(id)} picked color={color}>
+              <Tag key={id} at={tagAt(id)} picked color={highlights[id] || color}>
                 {tagOf(id)}
               </Tag>
             ))}
@@ -383,7 +419,7 @@ const Scene = ({
             )}
             {mouth.teeth.filter((t) => t.jaw === "lower").map(renderTooth)}
             {lowerTags.map((id) => (
-              <Tag key={id} at={tagAt(id)} picked color={color}>
+              <Tag key={id} at={tagAt(id)} picked color={highlights[id] || color}>
                 {tagOf(id)}
               </Tag>
             ))}
@@ -463,14 +499,14 @@ const Mouth = ({ onFail, ...props }) => {
 };
 
 // The 3D stage. `interactive` adds picking of teeth, surfaces and sites;
-// without it they are only shown, tinted with `accent`, for the report.
-const DentalScene = ({ accent = "select", ...props }) => (
+// without it they are only shown, tinted with `color`.
+const DentalScene = (props) => (
   <Canvas
     dpr={[1, 2]}
     camera={{ position: VIEWS.front.position, fov: 28, near: 4, far: 1600 }}
     gl={{ antialias: true, alpha: true }}
   >
-    <Mouth color={STAGE_COLORS[accent] || STAGE_COLORS.select} {...props} />
+    <Mouth {...props} />
   </Canvas>
 );
 
