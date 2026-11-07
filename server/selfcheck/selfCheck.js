@@ -9,6 +9,8 @@ import { validateCommands } from "../../src/shared/sceneCommands.js";
 import { plainTooth } from "../../src/shared/plainTooth.js";
 import { PROBLEM_BY_ID, PROBLEMS, URGENCY } from "./bank.js";
 import { triage } from "./triage.js";
+import { REMEDIES, unsafeBecause } from "../patient/remedies.js";
+import { describeProfile } from "../patient/care.js";
 
 // The patient's self-check result: the rules decide how urgent it is; the AI
 // (Qwen) explains it kindly, in the patient's language, without jargon.
@@ -149,10 +151,22 @@ const describeAnswers = (problem, answers) =>
     .map((q) => `- ${q.text} ${[].concat(answers[q.id]).join(", ")}`)
     .join("\n");
 
-export const selfCheckResult = async ({ problem: problemId, answers = {}, story = "", teeth = [], who = "me", age, language = "English" }) => {
+// Painkiller advice that fits the person's allergies, conditions and age.
+const painAdvice = (profile, age) => {
+  const ok = (id) => !unsafeBecause(Object.values(REMEDIES).flat().find((r) => r.id === id), profile || {}, age);
+  const both = ["paracetamol", "ibuprofen"].filter(ok);
+  if (both.length === 2) return null;
+  if (both[0] === "paracetamol") return "Paracetamol from a pharmacy can help with pain; follow the dose on the packet. Because of your history, avoid ibuprofen and aspirin unless a doctor says it's fine.";
+  if (both[0] === "ibuprofen") return "Ibuprofen from a pharmacy can help with pain; follow the dose on the packet. Because of your history, avoid paracetamol.";
+  return "Because of your allergies or health conditions, ask a pharmacist which painkiller is safe for you before taking anything.";
+};
+
+export const selfCheckResult = async ({ problem: problemId, answers = {}, story = "", teeth = [], who = "me", age, language = "English", profile = null }) => {
   const problem = PROBLEM_BY_ID[problemId];
   if (!problem) return null;
   const base = triage(problemId, answers, story);
+  const swap = painAdvice(profile, who === "child" ? age : undefined);
+  if (swap) base.selfCare = base.selfCare.map((s) => (/paracetamol or ibuprofen/.test(s) ? swap : s));
   const validTeeth = [].concat(teeth).map(String).filter((id) => toothById(id)).slice(0, 4);
   const color = URGENCY_COLOR[base.urgency.level];
   const commands = validTeeth.length
@@ -184,6 +198,7 @@ export const selfCheckResult = async ({ problem: problemId, answers = {}, story 
       maxTokens: translate ? 6000 : 3000,
       prompt: `${languageNote(language)}
 Who: ${who === "child" ? `their child${age ? `, aged ${age}` : ""}` : "themselves"}
+Their dental and medical history: ${profile ? describeProfile(profile) : "not given"} (mention anything in it that matters, e.g. an allergy, a condition or a past treatment on the same tooth).
 Problem: ${problem.label}
 Where: ${validTeeth.map(plainTooth).join("; ") || "not marked"}
 In their own words: ${story || "(nothing extra)"}

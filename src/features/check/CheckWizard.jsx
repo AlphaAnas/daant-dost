@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { FiAlertTriangle, FiArrowLeft, FiArrowRight, FiCheck, FiCircle, FiDroplet, FiMove, FiPlus, FiScissors, FiX, FiZap } from "react-icons/fi";
 import { CHILD_AREAS, MOUTH_AREAS, plainTooth } from "../../shared/plainTooth";
+import { toothById } from "../../data/teeth";
 import { HAND_WRITTEN, stringsFor } from "./strings";
 
 const ICONS = { zap: FiZap, alert: FiAlertTriangle, droplet: FiDroplet, scissors: FiScissors, circle: FiCircle, move: FiMove, plus: FiPlus };
@@ -20,7 +21,7 @@ const Big = ({ on, onClick, children, className = "" }) => (
     onClick={onClick}
     aria-pressed={on}
     className={`flex w-full items-center gap-3 rounded-2xl border-2 px-5 py-4 text-left text-lg font-bold transition-all ${
-      on ? "border-brand bg-brand-tint" : "border-line bg-white hover:-translate-y-0.5 hover:border-brand/50"
+      on ? "border-brand bg-brand-tint" : "border-line bg-white hover:bg-bone"
     } ${className}`}
   >
     {children}
@@ -119,7 +120,10 @@ const CheckWizard = ({ bank, languages, state, setState, teeth, onTeeth, onSubmi
   const set = (patch) => setState((s) => ({ ...s, ...patch }));
   const answer = (id, v) => setState((s) => ({ ...s, answers: { ...s.answers, [id]: v } }));
   const total = 4 + (problem?.questions.length || 5);
-  const done = { who: 0, what: 1, where: 2, story: 3, q: 4 + qi }[step];
+  const done = { who: 0, where: 1, what: 2, story: 3, q: 4 + qi }[step];
+  // Wisdom-tooth pain only makes sense when no teeth, or a wisdom tooth, are marked.
+  const isWisdom = (id) => toothById(id)?.dentition === "permanent" && toothById(id)?.position === 8;
+  const shownProblems = bank.filter((p) => p.id !== "wisdom" || !teeth.length || teeth.some(isWisdom));
 
   return (
     <div>
@@ -184,14 +188,14 @@ const CheckWizard = ({ bank, languages, state, setState, teeth, onTeeth, onSubmi
             </label>
           )}
           {translating && <p className="mt-4 text-sm font-bold text-brand">{t.translating}</p>}
-          <Nav t={t} onNext={() => setStep("what")} disabled={!state.who || (state.who === "child" && state.age === undefined)} />
+          <Nav t={t} onNext={() => setStep("where")} disabled={!state.who || (state.who === "child" && state.age === undefined)} />
         </Step>
       )}
 
       {step === "what" && (
-        <Step eyebrow={t.step(2)} title={t.whatTitle} help={t.whatHelp}>
+        <Step eyebrow={t.step(3)} title={t.whatTitle} help={t.whatHelp}>
           <div className="grid gap-2 sm:grid-cols-2">
-            {bank.map((p) => {
+            {shownProblems.map((p) => {
               const Icon = ICONS[p.icon] || FiZap;
               const on = state.problem === p.id;
               return (
@@ -203,8 +207,8 @@ const CheckWizard = ({ bank, languages, state, setState, teeth, onTeeth, onSubmi
                     set({ problem: p.id, answers: {} });
                     setQi(0);
                   }}
-                  className={`flex items-start gap-3 rounded-2xl border-2 p-4 text-left transition-all ${
-                    on ? "border-brand bg-brand-tint" : "border-line bg-white hover:-translate-y-0.5 hover:border-brand/50"
+                  className={`relative flex items-start gap-3 rounded-2xl border-2 p-4 text-left transition-colors ${
+                    on ? "border-brand bg-brand-tint" : "border-line bg-white hover:bg-bone"
                   }`}
                 >
                   <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${on ? "bg-brand text-white" : "bg-bone text-brand"}`}>
@@ -214,16 +218,21 @@ const CheckWizard = ({ bank, languages, state, setState, teeth, onTeeth, onSubmi
                     <span className="block font-bold">{p.display?.label || p.label}</span>
                     <span className="text-sm text-ink-soft">{p.display?.hint || p.hint}</span>
                   </span>
+                  {on && (
+                    <span className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-brand text-white">
+                      <FiCheck size={14} strokeWidth={3} />
+                    </span>
+                  )}
                 </button>
               );
             })}
           </div>
-          <Nav t={t} onBack={() => setStep("who")} onNext={() => setStep("where")} disabled={!state.problem} />
+          <Nav t={t} onBack={() => setStep("where")} onNext={() => setStep("story")} disabled={!state.problem || !shownProblems.some((p) => p.id === state.problem)} />
         </Step>
       )}
 
       {step === "where" && (
-        <Step eyebrow={t.step(3)} title={t.whereTitle} help={t.whereHelp}>
+        <Step eyebrow={t.step(2)} title={t.whereTitle} help={t.whereHelp}>
           {teeth.length > 0 && (
             <div className="mb-4 flex flex-wrap gap-2">
               {teeth.map((id) => (
@@ -245,11 +254,11 @@ const CheckWizard = ({ bank, languages, state, setState, teeth, onTeeth, onSubmi
                 </Big>
               );
             })}
-            <Big on={false} onClick={() => { onTeeth([]); setStep("story"); }}>
+            <Big on={false} onClick={() => { onTeeth([]); setStep("what"); }}>
               <span className="text-base text-ink-soft">{t.notSure}</span>
             </Big>
           </div>
-          <Nav t={t} onBack={() => setStep("what")} onNext={() => setStep("story")} nextLabel={teeth.length ? t.next : t.skip} />
+          <Nav t={t} onBack={() => setStep("who")} onNext={() => setStep("what")} nextLabel={teeth.length ? t.next : t.skip} />
         </Step>
       )}
 
@@ -265,7 +274,7 @@ const CheckWizard = ({ bank, languages, state, setState, teeth, onTeeth, onSubmi
             placeholder={t.storyPlaceholder}
             className="field resize-y text-lg"
           />
-          <Nav t={t} onBack={() => setStep("where")} onNext={() => setStep("q")} nextLabel={state.story.trim() ? t.next : t.skip} />
+          <Nav t={t} onBack={() => setStep("what")} onNext={() => setStep("q")} nextLabel={state.story.trim() ? t.next : t.skip} />
         </Step>
       )}
 

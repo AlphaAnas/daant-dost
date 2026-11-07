@@ -9,6 +9,7 @@ import { LANGUAGES } from "./i18n.js";
 import { generateCase } from "./caseAuthor.js";
 import { rateLimit } from "./rateLimit.js";
 import { publicBank, selfCheckAnswer, selfCheckResult } from "./selfcheck/selfCheck.js";
+import { patientRoutes } from "./patient/routes.js";
 import {
   MAX_HISTORY_QUESTIONS,
   answerItem,
@@ -200,6 +201,8 @@ export const createApp = ({ store, limits = {} }) => {
     }),
   );
 
+  const patients = patientRoutes(api, { store, wrap, HttpError, aiLimit });
+
   // The patient self-check: questions, then a plain-language result.
   api.get(
     "/selfcheck",
@@ -214,7 +217,9 @@ export const createApp = ({ store, limits = {} }) => {
     aiLimit,
     wrap(async (req, res) => {
       const b = req.body || {};
-      const result = await selfCheckResult({
+      const patientId = String(b.patientId || "").slice(0, 64);
+      const profile = patientId ? await patients.getProfile(patientId) : null;
+      const input = {
         problem: String(b.problem || ""),
         answers: b.answers && typeof b.answers === "object" ? b.answers : {},
         story: String(b.story || "").slice(0, 1500),
@@ -222,9 +227,11 @@ export const createApp = ({ store, limits = {} }) => {
         who: b.who === "child" ? "child" : "me",
         age: Number.isFinite(Number(b.age)) ? Number(b.age) : undefined,
         language: LANGUAGES.includes(b.language) ? b.language : "English",
-      });
+      };
+      const result = await selfCheckResult({ ...input, profile });
       if (!result) throw new HttpError(400, "Choose what kind of problem it is first.");
-      res.json(result);
+      const opened = patientId ? await patients.openCase({ patientId, input, result }) : null;
+      res.json({ ...result, caseId: opened?.id || null });
     }),
   );
 
