@@ -79,3 +79,23 @@ describe("tutor API", () => {
     expect((await request(app).post("/api/tutor").send({})).status).toBe(400);
   });
 });
+
+describe("explain API", () => {
+  test("lists treatments and plays one with valid commands", async () => {
+    const list = await request(app).get("/api/explain");
+    expect(list.body.treatments.map((t) => t.id)).toEqual(["filling", "root_canal", "crown", "extraction", "implant"]);
+    const res = await request(app).post("/api/explain").send({ treatment: "root_canal", language: "Urdu" });
+    expect(res.body.steps.length).toBe(5);
+    expect(res.body.note).toMatch(/English/);
+  });
+
+  test("every scripted step's commands are valid", async () => {
+    const { TREATMENTS } = await import("./explain.js");
+    const { validateCommands } = await import("../src/shared/sceneCommands.js");
+    Object.values(TREATMENTS).forEach((t) => t.steps.forEach((s) => expect(validateCommands(s.commands).rejected).toBe(0)));
+  });
+
+  test("unknown treatment is a 404", async () => {
+    expect((await request(app).post("/api/explain").send({ treatment: "magic" })).status).toBe(404);
+  });
+});

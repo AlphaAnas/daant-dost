@@ -4,6 +4,7 @@ import { aiEnabled, MODEL } from "./ai.js";
 import { coachReport, gradeText, patientReply } from "./assessor.js";
 import { CASES, caseById } from "./cases.js";
 import { TUTOR_SUGGESTIONS, tutorPlan } from "./tutor.js";
+import { LANGUAGES, TREATMENTS, explainPlan } from "./explain.js";
 import {
   MAX_HISTORY_QUESTIONS,
   answerItem,
@@ -157,6 +158,22 @@ export const createApp = ({ store }) => {
           layer: String(context.layer || ""),
         }),
       );
+    }),
+  );
+
+  api.get("/explain", (req, res) =>
+    res.json({
+      languages: LANGUAGES,
+      treatments: Object.entries(TREATMENTS).map(([id, t]) => ({ id, title: t.title, steps: t.steps.length })),
+    }),
+  );
+
+  api.post(
+    "/explain",
+    wrap(async (req, res) => {
+      const plan = await explainPlan(String(req.body?.treatment || ""), String(req.body?.language || "English"));
+      if (!plan) throw new HttpError(404, "That treatment isn't available yet.");
+      res.json(plan);
     }),
   );
 
