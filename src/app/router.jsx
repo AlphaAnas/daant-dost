@@ -1,0 +1,28 @@
+import { createBrowserRouter, createMemoryRouter } from "react-router-dom";
+import AppShell from "./AppShell";
+import HomePage from "../features/home/HomePage";
+import ExplorePage from "../features/explore/ExplorePage";
+import AssessHub from "../features/assess/AssessHub";
+import AssessmentPage from "../features/assess/AssessmentPage";
+import LearnPage from "../features/learn/LearnPage";
+import ExplainPage from "../features/explain/ExplainPage";
+import NotFound from "./NotFound";
+
+export const routes = [
+  {
+    path: "/",
+    element: <AppShell />,
+    children: [
+      { index: true, element: <HomePage /> },
+      { path: "explore", element: <ExplorePage /> },
+      { path: "assess", element: <AssessHub /> },
+      { path: "assess/:id", element: <AssessmentPage /> },
+      { path: "learn", element: <LearnPage /> },
+      { path: "explain", element: <ExplainPage /> },
+      { path: "*", element: <NotFound /> },
+    ],
+  },
+];
+
+export const createAppRouter = ({ initialEntries } = {}) =>
+  initialEntries ? createMemoryRouter(routes, { initialEntries }) : createBrowserRouter(routes);
