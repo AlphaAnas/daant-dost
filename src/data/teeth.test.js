@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { TEETH, searchTeeth, surfaceLetter, surfaceName, toothById, regionOfTooth } from "./teeth";
-import { DENTAL_REGIONS, DENTAL_STARTERS, DENTAL_INSIGHTS, chartRowLabel, dentalRegionById, dentalRegionGroup, dentalSiteLabel } from "./dental";
+import { DENTAL_REGIONS, SITE_STUDY_NOTES, SITE_TITLES, chartRowLabel, dentalRegionById, dentalRegionGroup } from "./dental";
 
 const ids = (query, options) => searchTeeth(query, options).map((t) => t.id);
 
@@ -42,10 +42,10 @@ describe("searchTeeth", () => {
 });
 
 describe("dental reference data", () => {
-  test("every site group has its starters and reference", () => {
+  test("every site group has study notes and a title", () => {
     new Set(DENTAL_REGIONS.map((r) => r.group)).forEach((group) => {
-      expect(DENTAL_STARTERS[group]?.length).toBeGreaterThan(0);
-      expect(DENTAL_INSIGHTS[group]).toBeDefined();
+      expect(SITE_STUDY_NOTES[group].differentials.length).toBeGreaterThan(0);
+      expect(SITE_TITLES[group]).toBeTruthy();
     });
   });
 
@@ -53,12 +53,6 @@ describe("dental reference data", () => {
     expect(dentalRegionGroup("quadrant_ll", ["38"])).toBe("third_molar");
     expect(dentalRegionGroup("quadrant_ll", ["36"])).toBe("teeth");
     expect(dentalRegionGroup("tmj_left")).toBe("tmj");
-  });
-
-  test("labels a case by its teeth, or else its sites", () => {
-    expect(dentalSiteLabel({ teeth: ["36", "37"], regions: ["quadrant_ll"] })).toBe("Tooth 36, Tooth 37");
-    expect(dentalSiteLabel({ regions: ["tongue"] })).toBe("Tongue");
-    expect(dentalSiteLabel({ bodyRegion: "multiple" })).toBe("Multiple sites");
   });
 
   test("reads a chart row as a clinician writes it", () => {

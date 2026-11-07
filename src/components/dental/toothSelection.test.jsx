@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import { act, renderHook } from "@testing-library/react";
 import { dentalSites, useToothSelection } from "./toothSelection";
 
-const setup = (draft) => renderHook(() => useToothSelection(draft));
+const setup = () => renderHook(() => useToothSelection());
 const run = (hook, fn) => act(() => fn(hook.result.current));
 
 describe("useToothSelection", () => {
@@ -60,29 +60,6 @@ describe("useToothSelection", () => {
     run(hook, (s) => s.pickTooth("11"));
     run(hook, (s) => s.oneSite());
     expect(hook.result.current).toMatchObject({ multi: false, teeth: ["11"], active: "11" });
-  });
-
-  test("the payload is what the API takes", () => {
-    const hook = setup();
-    run(hook, (s) => s.pickTooth("36"));
-    run(hook, (s) => s.toggleSurface("36", "D"));
-    expect(hook.result.current.payload).toEqual({
-      clinicalModule: "dental",
-      bodyRegion: "quadrant_ll",
-      teeth: ["36"],
-      regions: [],
-      toothChart: [{ tooth: "36", surfaces: ["D"], conditions: [] }],
-    });
-  });
-
-  test("restores a draft after a failed start", () => {
-    const hook = setup({
-      bodyRegion: "multiple",
-      teeth: ["36", "11"],
-      regions: ["tongue"],
-      toothChart: [{ tooth: "36", surfaces: ["O"], conditions: [] }],
-    });
-    expect(hook.result.current).toMatchObject({ multi: true, teeth: ["36", "11"], regions: ["tongue"], active: "11" });
   });
 
   test("dentalSites adds each tooth's quadrant once", () => {

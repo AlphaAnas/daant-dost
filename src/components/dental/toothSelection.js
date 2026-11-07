@@ -6,29 +6,22 @@ const toggle = (list, id) =>
   list.includes(id) ? list.filter((x) => x !== id) : [...list, id];
 const unique = (list) => [...new Set(list)];
 
-// Every site a case covers: those marked directly, plus each tooth's
-// quadrant. Same rule as the backend's parseDentalSite.
+// Every site marked: those picked directly, plus each tooth's quadrant.
 export const dentalSites = (teeth, regions) =>
   unique([...regions, ...teeth.map(quadrantOf)]);
 
 /**
- * The teeth and oral sites marked for a new dental case, with what is charted
- * on each tooth. With one site a click replaces the selection; with several,
+ * The teeth and oral sites picked on the mouth, with what is charted on each
+ * tooth. With one site a click replaces the selection; with several,
  * a click adds the tooth or site, and a second click removes it. `active` is
  * the tooth the chart panel is working on.
  */
-export const useToothSelection = (draft) => {
-  const [multi, setMulti] = useState(
-    draft?.bodyRegion === "multiple" || draft?.teeth?.length > 1,
-  );
-  const [teeth, setTeeth] = useState(draft?.teeth || []);
-  const [regions, setRegions] = useState(
-    (draft?.regions || []).filter(
-      (r) => !draft?.teeth?.some((id) => quadrantOf(id) === r),
-    ),
-  );
-  const [chart, setChart] = useState(draft?.toothChart || []);
-  const [active, setActive] = useState(draft?.teeth?.at(-1) || null);
+export const useToothSelection = () => {
+  const [multi, setMulti] = useState(false);
+  const [teeth, setTeeth] = useState([]);
+  const [regions, setRegions] = useState([]);
+  const [chart, setChart] = useState([]);
+  const [active, setActive] = useState(null);
 
   const editRow = (tooth, change) =>
     setChart((rows) => {
@@ -118,13 +111,11 @@ export const useToothSelection = (draft) => {
     oneSite,
     severalSites: () => setMulti(true),
     remove,
-    // What the API takes; the backend works out the full list of regions.
-    payload: {
-      clinicalModule: "dental",
-      bodyRegion: primary || undefined,
-      teeth,
-      regions,
-      toothChart: chart,
+    clear: () => {
+      setTeeth([]);
+      setRegions([]);
+      setChart([]);
+      setActive(null);
     },
   };
 };
