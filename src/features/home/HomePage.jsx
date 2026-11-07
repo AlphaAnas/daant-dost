@@ -9,6 +9,20 @@ const heroStore = () => createSceneStore({ autoRotate: true, open: 0.35 });
 // Who ToothTwin is for, and what each of them does here.
 const AUDIENCES = [
   {
+    icon: FiHeart,
+    who: "Patients and parents",
+    tagline: "Understand a treatment before you say yes.",
+    does: [
+      "Watch a filling, root canal or implant explained in 3D",
+      "Hear it in your language: Urdu, Arabic, Hindi and more",
+      "See which teeth your child should have at their age",
+    ],
+    cta: "See a treatment explained",
+    to: "/explain",
+    more: [["My child's teeth", "/explore?age=7"]],
+    tone: "from-[#FF7A2F] to-[#FFB020]",
+  },
+  {
     icon: FiBookOpen,
     who: "Dental students",
     tagline: "Practise on patients before you meet real ones.",
@@ -36,20 +50,6 @@ const AUDIENCES = [
     more: [["3D explorer", "/explore"]],
     tone: "from-[#7C5CFF] to-[#B49CFF]",
   },
-  {
-    icon: FiHeart,
-    who: "Patients and parents",
-    tagline: "Understand a treatment before you say yes.",
-    does: [
-      "Watch a filling, root canal or implant explained in 3D",
-      "Hear it in your language: Urdu, Arabic, Hindi and more",
-      "See which teeth your child should have at their age",
-    ],
-    cta: "See a treatment explained",
-    to: "/explain",
-    more: [["My child's teeth", "/explore?age=7"]],
-    tone: "from-[#FF7A2F] to-[#FFB020]",
-  },
 ];
 
 const rise = (i = 0) => ({
@@ -61,30 +61,30 @@ const rise = (i = 0) => ({
 const HomePage = () => (
   <>
     <section className="relative overflow-hidden bg-[radial-gradient(ellipse_at_70%_40%,#27304F_0%,#141B38_45%,#0A1229_100%)] text-white">
-      <div className="mx-auto grid w-full max-w-7xl items-center gap-8 px-4 pb-12 pt-10 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:pb-20 lg:pt-16">
+      <div className="mx-auto grid w-full max-w-7xl items-center gap-8 px-4 pb-12 pt-10 sm:px-6 lg:grid-cols-[1fr_1.25fr] lg:pb-20 lg:pt-16">
         <div className="relative z-10">
           <motion.p {...rise(0)} className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-sm font-bold text-sky ring-1 ring-white/10">
-            <span className="h-1.5 w-1.5 rounded-full bg-sky" /> For dental students, teachers and patients
+            <span className="h-1.5 w-1.5 rounded-full bg-sky" /> For patients and parents
           </motion.p>
           <motion.h1 {...rise(1)} className="mt-5 font-display text-4xl font-semibold leading-[1.05] sm:text-5xl lg:text-6xl">
-            Learn dentistry on a <span className="bg-gradient-to-r from-sky to-[#7CD8FF] bg-clip-text text-transparent">living 3D mouth.</span>
+            See your treatment <span className="bg-gradient-to-r from-sky to-[#7CD8FF] bg-clip-text text-transparent">before it happens.</span>
           </motion.h1>
           <motion.p {...rise(2)} className="mt-5 max-w-lg text-lg leading-relaxed text-white/70">
-            ToothTwin is a 3D mouth with an AI inside. Students practise on AI patients and get marked, teachers set cases in seconds, and patients see their treatment before it happens.
+            Not sure what a root canal or an implant really means? Watch it explained step by step on a 3D mouth, in plain words and in your own language. Parents can also see which teeth their child should have at every age.
           </motion.p>
           <motion.div {...rise(3)} className="mt-8 flex flex-wrap gap-3">
-            <Link to="/assess" className="btn-primary px-6 py-3.5 text-base shadow-lg shadow-brand/30">
-              I'm a student: start a case <FiArrowRight />
+            <Link to="/explain" className="btn-primary px-6 py-3.5 text-base shadow-lg shadow-brand/30">
+              See a treatment explained <FiArrowRight />
             </Link>
-            <Link to="/explore" className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-6 py-3.5 font-bold text-white ring-1 ring-white/15 transition-colors hover:bg-white/15">
-              <FiCompass /> Just explore the 3D mouth
+            <Link to="/explore?age=7" className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-6 py-3.5 font-bold text-white ring-1 ring-white/15 transition-colors hover:bg-white/15">
+              <FiCompass /> My child's teeth
             </Link>
           </motion.div>
           <motion.dl {...rise(4)} className="mt-10 grid max-w-md grid-cols-3 gap-4 border-t border-white/10 pt-6">
             {[
-              ["6", "patient cases"],
-              ["6", "skills marked"],
-              ["32", "teeth in 3D"],
+              ["5", "treatments explained"],
+              ["7", "languages"],
+              ["0–25", "years, tooth by tooth"],
             ].map(([n, label]) => (
               <div key={label}>
                 <dt className="sr-only">{label}</dt>
@@ -93,6 +93,10 @@ const HomePage = () => (
               </div>
             ))}
           </motion.dl>
+          <motion.p {...rise(5)} className="mt-6 text-sm text-white/55">
+            Dental student or teacher?{" "}
+            <Link to="/assess" className="font-bold text-sky hover:underline">Practise AI patient cases</Link>
+          </motion.p>
         </div>
         <motion.div
           initial={{ opacity: 0, scale: 0.96 }}
